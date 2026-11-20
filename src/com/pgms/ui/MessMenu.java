@@ -37,8 +37,10 @@ public class MessMenu {
             System.out.println("3. Change a tenant's mess plan");
             System.out.println("4. View this week's menu");
             System.out.println("5. Change the menu for a day");
+            System.out.println("6. Edit a mess plan");
+            System.out.println("7. Delete a mess plan");
             System.out.println("0. Back");
-            int choice = in.number("Choose: ", 0, 5);
+            int choice = in.number("Choose: ", 0, 7);
             try {
                 switch (choice) {
                     case 1: plans(); break;
@@ -46,6 +48,8 @@ public class MessMenu {
                     case 3: changePlan(); break;
                     case 4: menu(); break;
                     case 5: changeMenu(); break;
+                    case 6: editPlan(); break;
+                    case 7: deletePlan(); break;
                     default: return;
                 }
             } catch (IllegalArgumentException e) {
@@ -106,5 +110,29 @@ public class MessMenu {
         String d = in.text("Dinner: ");
         mess.updateMenu(day, b, l, d);
         System.out.println("  Menu for " + day + " saved.");
+    }
+
+    private void editPlan() throws SQLException {
+        MessPlan p = mess.requirePlan(in.number("Plan ID: ", 1, Integer.MAX_VALUE));
+        System.out.println("  Press Enter to keep the value in [brackets].");
+        String name = RoomMenu.keep(in.line("  Name [" + p.getName() + "]: "), p.getName());
+        String meals = RoomMenu.keep(in.line("  Meals per day 1-3 [" + p.getMealsPerDay() + "]: "),
+                String.valueOf(p.getMealsPerDay()));
+        String charge = RoomMenu.keep(in.line("  Charge per month [" + com.pgms.util.Money.plain(p.monthlyCharge()) + "]: "),
+                String.valueOf(p.monthlyCharge()));
+        try {
+            MessPlan u = mess.editPlan(p.getId(), name, Integer.parseInt(meals), Double.parseDouble(charge.replace(",", "")));
+            System.out.println("  Plan '" + u.getName() + "' saved. Bills already made keep the old charge.");
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Meals and charge must be numbers");
+        }
+    }
+
+    private void deletePlan() throws SQLException {
+        MessPlan p = mess.requirePlan(in.number("Plan ID to delete: ", 1, Integer.MAX_VALUE));
+        if (in.yesNo("Delete the plan '" + p.getName() + "'? This cannot be undone.")) {
+            mess.deletePlan(p.getId());
+            System.out.println("  Plan deleted.");
+        }
     }
 }

@@ -190,4 +190,47 @@ public class TenantDAO {
         t.setMessPlanName(rs.getString("plan_name"));
         return t;
     }
+
+    /** Change a tenant's personal details (not their room, plan or stay status). */
+    public void updateDetails(Tenant t) throws SQLException {
+        String sql = "UPDATE tenants SET name = ?, phone = ?, email = ?, gender = ?, occupation = ?, "
+                + "deposit = ?, join_date = ? WHERE tenant_id = ?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, t.getName());
+            ps.setString(2, t.getPhone());
+            ps.setString(3, t.getEmail());
+            ps.setString(4, t.getGender().name());
+            ps.setString(5, t.getOccupation());
+            ps.setDouble(6, t.getDeposit());
+            ps.setDate(7, new java.sql.Date(t.getJoinDate().getTime()));
+            ps.setInt(8, t.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    /** True if another CURRENT tenant (not this one) already uses the phone number. */
+    public boolean phoneUsedByOther(String phone, int tenantId) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT 1 FROM tenants WHERE phone = ? AND status = 'ACTIVE' AND tenant_id <> ?")) {
+            ps.setString(1, phone);
+            ps.setInt(2, tenantId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    /** How many tenants (current or past) have ever been on this mess plan. */
+    public int countOnPlan(int planId) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM tenants WHERE mess_plan_id = ?")) {
+            ps.setInt(1, planId);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        }
+    }
 }

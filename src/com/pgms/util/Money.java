@@ -37,4 +37,10 @@ public final class Money {
         }
         return (negative ? "-Rs." : "Rs.") + out;
     }
+
+    /** "6500" or "4300.5" - for putting an amount back into a text box. */
+    public static String plain(double amount) {
+        double r = Math.round(amount * 100) / 100.0;
+        return r == Math.floor(r) ? String.valueOf((long) r) : String.valueOf(r);
+    }
 }

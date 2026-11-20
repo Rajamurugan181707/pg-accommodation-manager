@@ -116,4 +116,34 @@ public class RoomService {
         }
         return new int[] {total, occupied};
     }
+
+    /**
+     * Edit a room. Room number must stay unique; the type can only change to one
+     * that still fits the people already in the room. Bills already made keep
+     * their old rent.
+     */
+    public Room editRoom(String currentNo, String newNo, int floor, RoomType type, double rentPerBed, boolean ac)
+            throws SQLException {
+        Room room = requireRoom(currentNo);
+        String no = newNo.trim().toUpperCase();
+        if (!no.matches("[A-Z0-9]{1,10}")) {
+            throw new IllegalArgumentException("Room number can only have letters and digits (max 10)");
+        }
+        if (!no.equalsIgnoreCase(room.getRoomNo()) && findByRoomNo(no) != null) {
+            throw new IllegalArgumentException("Room " + no + " already exists");
+        }
+        if (floor < 0 || floor > 50) {
+            throw new IllegalArgumentException("Floor must be between 0 and 50");
+        }
+        if (type.beds() < room.getOccupied()) {
+            throw new IllegalArgumentException("Room " + room.getRoomNo() + " has " + room.getOccupied()
+                    + " tenants, so it cannot become a " + type.name().toLowerCase() + " room ("
+                    + type.beds() + " bed" + (type.beds() > 1 ? "s" : "") + "). Shift someone out first.");
+        }
+        Room checked = new Room(room.getId(), no, floor, type, room.getOccupied(), rentPerBed, ac);
+        if (!dao.update(room.getId(), no, floor, type, checked.getRentPerBed(), ac)) {
+            throw new IllegalArgumentException("The room's tenants would not fit; nothing was changed");
+        }
+        return checked;
+    }
 }

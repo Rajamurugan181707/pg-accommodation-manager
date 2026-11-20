@@ -91,10 +91,28 @@ files or extra libraries, and it still runs on Java 8.
 Each page calls the same `service` classes as the console menus, so the rules (full
 rooms, overpayment, frozen bills, input checks) are identical in both.
 
-More screenshots: [Rooms](docs/gui-rooms.png) · [Tenants](docs/gui-tenants.png) ·
+More screenshots: [Settings](docs/gui-settings.png) · [Edit payment](docs/gui-edit-payment.png) · [Rooms](docs/gui-rooms.png) · [Tenants](docs/gui-tenants.png) ·
 [Rent](docs/gui-rent.png) · [Mess](docs/gui-mess.png) · [Register form](docs/gui-register-form.png) · [Statement](docs/gui-statement.png)
 
 ---
+
+## Everything is editable
+
+Every record can be corrected after it is saved, from the GUI or the console. The same
+safety rules still apply to every edit.
+
+| What | Edit | Rules kept |
+|---|---|---|
+| **Room** | number, floor, type, AC, rent (**Rooms → Edit room**) | number stays unique; a room cannot shrink below the people in it; old bills keep their old rent |
+| **Tenant** | name, phone, email, gender, occupation, deposit, joining date (**Tenants → Edit details**) | phone unique among current tenants; joining date not after leaving date |
+| **Payment** | amount, date, mode, note, or delete it (**Rent → Edit payment**) | a month's payments can never add up to more than its bill; no future dates |
+| **Bill** | one month's room rent and mess charge, e.g. a discount (**Rent → Edit bill**) | cannot go below what is already paid; no future months |
+| **Mess plan** | name, meals, charge, or delete it (click a plan card, then **Edit plan / Delete plan**) | names unique; a plan any tenant has used cannot be deleted |
+| **Menu** | any day's meals (**Mess → Edit selected day**) | - |
+| **Names in the app** | PG name, tagline, owner name, footer line (**Settings** page) | shown live in the sidebar and window title |
+
+Room shifts, mess-plan changes and check-outs have their own buttons, because they
+change beds and bills, not just details.
 
 ## 1. What each module does
 

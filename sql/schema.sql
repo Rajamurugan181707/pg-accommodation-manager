@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS tenants;
 DROP TABLE IF EXISTS rooms;
 DROP TABLE IF EXISTS mess_plans;
 DROP TABLE IF EXISTS mess_menu;
+DROP TABLE IF EXISTS settings;
 
 -- ---------- ROOM module ----------
 CREATE TABLE rooms (
@@ -93,9 +94,21 @@ CREATE TABLE rent_payments (
 );
 CREATE INDEX idx_payment_month ON rent_payments (bill_month);
 
+-- ---------- SETTINGS (names shown in the app, all editable) ----------
+CREATE TABLE settings (
+    setting_key   VARCHAR(40) PRIMARY KEY,
+    setting_value VARCHAR(80) NOT NULL
+);
+
 -- =============================================================
 --  Sample data (so the demo has something to show)
 -- =============================================================
+INSERT INTO settings VALUES
+('pg_name',    'PG Manager'),
+('pg_tagline', 'ACCOMMODATION'),
+('owner_name', 'A. Raja Murugan'),
+('owner_line', 'II CSE F | MINI PROJECT');
+
 INSERT INTO rooms (room_no, floor_no, room_type, capacity, rent_per_bed, has_ac) VALUES
 ('G01', 0, 'SINGLE', 1,  9000, FALSE),
 ('G02', 0, 'DOUBLE', 2,  6500, FALSE),

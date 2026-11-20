@@ -78,4 +78,17 @@ public class BillDAO {
         }
         return list;
     }
+
+    /** Correct the amounts on one saved bill (e.g. a discount or a wrong charge). */
+    public void updateAmounts(int tenantId, String month, double roomRent, double messCharge) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "UPDATE monthly_bills SET room_rent = ?, mess_charge = ? WHERE tenant_id = ? AND bill_month = ?")) {
+            ps.setDouble(1, roomRent);
+            ps.setDouble(2, messCharge);
+            ps.setInt(3, tenantId);
+            ps.setString(4, month);
+            ps.executeUpdate();
+        }
+    }
 }

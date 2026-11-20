@@ -37,11 +37,11 @@ public class RoomsPanel extends JPanel implements Screen {
 
         JButton find = Ui.secondary("Find room", "search");
         JButton add = Ui.primary("Add room", "plus");
-        JButton rent = Ui.secondary("Change rent", "edit");
+        JButton rent = Ui.secondary("Edit room", "edit");
         JButton delete = Ui.secondary("Delete room", "trash");
         findBox.setName("Room number");
         findBox.setToolTipText("Type a room number, e.g. 102");
-        findBox.setHint("Room number, e.g. 102");
+        findBox.setHint("e.g. 102");
 
         RoundPanel bar = new RoundPanel(new BorderLayout(0, 14), 18);
         bar.add(Ui.row(findBox, find, Ui.gap(6), freeOnly, sortBy), BorderLayout.NORTH);
@@ -59,7 +59,7 @@ public class RoomsPanel extends JPanel implements Screen {
         freeOnly.addActionListener(e -> refresh());
         sortBy.addActionListener(e -> refresh());
         add.addActionListener(e -> addRoom());
-        rent.addActionListener(e -> changeRent());
+        rent.addActionListener(e -> editRoom());
         delete.addActionListener(e -> deleteRoom());
     }
 
@@ -163,18 +163,24 @@ public class RoomsPanel extends JPanel implements Screen {
         }
     }
 
-    private void changeRent() {
+    private void editRoom() {
         try {
             final Room r = selected();
             final String[] msg = {null};
             Form f = new Form();
-            f.note("Room " + r.getRoomNo() + ": now " + Money.inr(r.getRentPerBed()) + " per bed");
-            JTextField rent = f.text("New rent per bed", String.valueOf(Math.round(r.getRentPerBed())));
-            boolean saved = f.show(this, "Change rent", () -> {
-                double amount = Form.amount(rent);
-                rooms.updateRent(r.getRoomNo(), amount);
-                msg[0] = "Room " + r.getRoomNo() + " rent is now " + Money.inr(amount)
-                        + ". Bills already made keep the old rent.";
+            f.note("Editing room " + r.getRoomNo() + " (" + r.getOccupied() + " tenant(s) in it now)");
+            JTextField no = f.text("Room number", r.getRoomNo());
+            JTextField floor = f.text("Floor (0 = ground)", String.valueOf(r.getFloor()));
+            JComboBox<RoomType> type = f.combo("Type", RoomType.values());
+            type.setSelectedItem(r.getType());
+            JTextField rent = f.text("Rent per bed", Money.plain(r.getRentPerBed()));
+            JCheckBox ac = f.check("AC room");
+            ac.setSelected(r.hasAc());
+            boolean saved = f.show(this, "Edit room", () -> {
+                Room updated = rooms.editRoom(r.getRoomNo(), Form.required(no), Form.whole(floor, 0, 50),
+                        (RoomType) type.getSelectedItem(), Form.amount(rent), ac.isSelected());
+                msg[0] = "Room " + updated.getRoomNo() + " saved. Bills already made keep their old rent.";
+                selected = updated;
             });
             if (saved) {
                 refresh();

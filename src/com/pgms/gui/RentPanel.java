@@ -41,15 +41,17 @@ public class RentPanel extends JPanel implements Screen {
 
         JButton record = Ui.primary("Record payment", "receipt");
         JButton bill = Ui.secondary("View bill", "info");
-        JButton statement = Ui.secondary("Full statement", "list");
-        JButton received = Ui.secondary("Payments this month", "calendar");
+        JButton editBill = Ui.secondary("Edit bill", "edit");
+        JButton editPay = Ui.secondary("Edit payment", "receipt");
+        JButton statement = Ui.secondary("Statement", "list");
+        JButton received = Ui.secondary("Month's payments", "calendar");
 
         JLabel monthLabel = Ui.bold("Month");
         monthLabel.setIcon(Ui.icon("calendar", 16));
         monthLabel.setIconTextGap(8);
         RoundPanel bar = new RoundPanel(new BorderLayout(0, 14), 18);
         bar.add(Ui.row(monthLabel, month, Ui.gap(4), totals), BorderLayout.NORTH);
-        bar.add(Ui.row(record, bill, statement, received), BorderLayout.SOUTH);
+        bar.add(Ui.row(record, editPay, editBill, bill, statement, received), BorderLayout.SOUTH);
 
         JPanel stats = new JPanel(new GridLayout(1, 3, 16, 0));
         stats.setOpaque(false);
@@ -68,6 +70,8 @@ public class RentPanel extends JPanel implements Screen {
         month.addActionListener(e -> refresh());
         record.addActionListener(e -> record());
         bill.addActionListener(e -> bill());
+        editBill.addActionListener(e -> editBill());
+        editPay.addActionListener(e -> editPayment());
         statement.addActionListener(e -> statement());
         received.addActionListener(e -> received());
     }
@@ -217,6 +221,88 @@ public class RentPanel extends JPanel implements Screen {
             }
             Ui.tableDialog(this, "Payments received", "Payments towards " + month(), m,
                     "Total received: " + Money.inr(total));
+        } catch (Exception e) {
+            Ui.problem(this, e);
+        }
+    }
+
+    /** Change one month's saved bill for the selected tenant (e.g. a discount). */
+    private void editBill() {
+        try {
+            final DueLine l = selected();
+            final String m = month();
+            double roomPart = l.getItems()[0].monthlyCharge();
+            double messPart = l.getItems().length > 1 ? l.getItems()[1].monthlyCharge() : 0;
+            Form f = new Form();
+            f.note(l.getTenant().getName() + "  |  bill for " + m + "  |  paid so far " + Money.inr(l.paid()));
+            JTextField rentField = f.text("Room rent", Money.plain(roomPart));
+            JTextField messField = f.text("Mess charge", Money.plain(messPart));
+            f.note("This changes only " + m + ". Other months keep their own bills.");
+            boolean saved = f.show(this, "Edit bill", () ->
+                    rent.editBill(l.getTenant().getId(), m, Form.amount(rentField), Form.amountOrZero(messField)));
+            if (saved) {
+                refresh();
+                Toast.show(this, "Bill for " + l.getTenant().getName() + ", " + m + " saved.");
+            }
+        } catch (Exception e) {
+            Ui.problem(this, e);
+        }
+    }
+
+    /** Correct or delete one of the selected tenant's receipts for this month. */
+    @SuppressWarnings("unchecked")
+    private void editPayment() {
+        try {
+            final DueLine l = selected();
+            final String m = month();
+            DynamicArray<RentPayment> mine = rent.paymentsOf(l.getTenant().getId())
+                    .filter(p -> p.getBillMonth().equals(m));
+            if (mine.isEmpty()) {
+                throw new IllegalArgumentException(l.getTenant().getName() + " has no payments for " + m + ".");
+            }
+            Choice<RentPayment>[] items = new Choice[mine.size()];
+            for (int i = 0; i < mine.size(); i++) {
+                RentPayment p = mine.get(i);
+                items[i] = new Choice<RentPayment>(p, "Receipt #" + p.getId() + "  -  " + Money.inr(p.getAmount())
+                        + "  on " + Dates.format(p.getPaidOn()));
+            }
+            Form f = new Form();
+            f.note(l.getTenant().getName() + "  |  " + m + "  |  bill " + Money.inr(l.due()));
+            JComboBox<Choice<RentPayment>> which = f.combo("Receipt", items);
+            JTextField amount = f.text("Amount", "");
+            JComboBox<PaymentMode> mode = f.combo("Mode", PaymentMode.values());
+            JTextField date = f.text("Paid on", "");
+            JTextField note = f.text("Note (optional)", "");
+            javax.swing.JCheckBox delete = f.check("Delete this receipt");
+            Runnable fill = () -> {
+                RentPayment p = ((Choice<RentPayment>) which.getSelectedItem()).value();
+                amount.setText(Money.plain(p.getAmount()));
+                mode.setSelectedItem(p.getMode());
+                date.setText(Dates.format(p.getPaidOn()));
+                note.setText(p.getNote() == null ? "" : p.getNote());
+            };
+            fill.run();
+            which.addActionListener(e -> fill.run());
+            final String[] msg = {null};
+            boolean saved = f.show(this, "Edit payment", () -> {
+                RentPayment p = ((Choice<RentPayment>) which.getSelectedItem()).value();
+                if (delete.isSelected()) {
+                    if (!Ui.confirm(this, "Delete receipt", "Delete receipt #" + p.getId() + " for "
+                            + Money.inr(p.getAmount()) + "? This cannot be undone.")) {
+                        throw new IllegalArgumentException("Not deleted.");
+                    }
+                    rent.deletePayment(p.getId());
+                    msg[0] = "Receipt #" + p.getId() + " deleted.";
+                } else {
+                    RentPayment u = rent.editPayment(p.getId(), Form.amount(amount), Form.date(date),
+                            (PaymentMode) mode.getSelectedItem(), Form.optional(note));
+                    msg[0] = "Receipt #" + u.getId() + " saved: " + Money.inr(u.getAmount()) + ".";
+                }
+            });
+            if (saved) {
+                refresh();
+                Toast.show(this, msg[0]);
+            }
         } catch (Exception e) {
             Ui.problem(this, e);
         }

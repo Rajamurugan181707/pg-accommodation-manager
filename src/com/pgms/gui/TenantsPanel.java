@@ -50,6 +50,7 @@ public class TenantsPanel extends JPanel implements Screen {
 
         JButton register = Ui.primary("Register tenant", "plus");
         JButton details = Ui.secondary("Details", "info");
+        JButton edit = Ui.secondary("Edit details", "edit");
         JButton shift = Ui.secondary("Shift room", "move");
         JButton plan = Ui.secondary("Change mess plan", "bowl");
         JButton checkout = Ui.secondary("Check out", "exit");
@@ -59,7 +60,7 @@ public class TenantsPanel extends JPanel implements Screen {
 
         RoundPanel bar = new RoundPanel(new BorderLayout(0, 14), 18);
         bar.add(Ui.row(search, show, Ui.gap(4), status), BorderLayout.NORTH);
-        bar.add(Ui.row(register, details, shift, plan, checkout), BorderLayout.SOUTH);
+        bar.add(Ui.row(register, edit, details, shift, plan, checkout), BorderLayout.SOUTH);
         add(bar, BorderLayout.NORTH);
         Ui.widths(table, 56, 200, 120, 70, 160, 110, 110);
         add(Ui.card("Tenants", "users", Ui.scroll(table)), BorderLayout.CENTER);
@@ -72,6 +73,7 @@ public class TenantsPanel extends JPanel implements Screen {
         show.addActionListener(e -> refresh());
         register.addActionListener(e -> register());
         details.addActionListener(e -> details());
+        edit.addActionListener(e -> editDetails());
         shift.addActionListener(e -> shift());
         plan.addActionListener(e -> changePlan());
         checkout.addActionListener(e -> checkout());
@@ -270,6 +272,36 @@ public class TenantsPanel extends JPanel implements Screen {
             boolean saved = f.show(this, "Check out", () -> {
                 tenants.checkout(t.getId(), Form.date(date));
                 msg[0] = t.getName() + " checked out. Room " + t.getRoomNo() + " has a free bed again.";
+            });
+            if (saved) {
+                refresh();
+                Ui.done(status, msg[0]);
+            }
+        } catch (Exception e) {
+            Ui.problem(this, e);
+        }
+    }
+
+    private void editDetails() {
+        try {
+            final Tenant t = selected();
+            final String[] msg = {null};
+            Form f = new Form();
+            f.note("Editing tenant #" + t.getId() + (t.isActive() ? "" : " (checked out)"));
+            JTextField name = f.text("Full name", t.getName());
+            JTextField phone = f.text("Mobile number", t.getPhone());
+            JTextField email = f.text("Email (optional)", t.getEmail());
+            JComboBox<Gender> gender = f.combo("Gender", Gender.values());
+            gender.setSelectedItem(t.getGender());
+            JTextField job = f.text("Occupation (optional)", t.getOccupation());
+            JTextField joined = f.text("Joining date", Dates.format(t.getJoinDate()));
+            JTextField deposit = f.text("Security deposit", Money.plain(t.getDeposit()));
+            f.note("Room, mess plan and check-out have their own buttons.");
+            boolean saved = f.show(this, "Edit tenant", () -> {
+                Tenant u = tenants.editDetails(t.getId(), Form.required(name), phone.getText().trim(),
+                        Form.optional(email), (Gender) gender.getSelectedItem(), Form.optional(job),
+                        Form.amountOrZero(deposit), Form.date(joined));
+                msg[0] = "Saved " + u.getName() + "'s details.";
             });
             if (saved) {
                 refresh();

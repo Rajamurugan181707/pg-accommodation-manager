@@ -67,4 +67,32 @@ public class RentDAO {
         }
         return list;
     }
+
+    public RentPayment findById(int paymentId) throws SQLException {
+        DynamicArray<RentPayment> found = query(SELECT + "WHERE p.payment_id = ?", paymentId);
+        return found.isEmpty() ? null : found.get(0);
+    }
+
+    /** Correct a payment's amount, date, mode or note (its tenant and month stay). */
+    public void update(int paymentId, double amount, java.util.Date paidOn, PaymentMode mode, String note)
+            throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "UPDATE rent_payments SET amount = ?, paid_on = ?, mode = ?, note = ? WHERE payment_id = ?")) {
+            ps.setDouble(1, amount);
+            ps.setDate(2, new java.sql.Date(paidOn.getTime()));
+            ps.setString(3, mode.name());
+            ps.setString(4, note);
+            ps.setInt(5, paymentId);
+            ps.executeUpdate();
+        }
+    }
+
+    public void delete(int paymentId) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM rent_payments WHERE payment_id = ?")) {
+            ps.setInt(1, paymentId);
+            ps.executeUpdate();
+        }
+    }
 }

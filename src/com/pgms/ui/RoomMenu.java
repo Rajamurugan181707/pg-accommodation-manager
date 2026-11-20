@@ -28,7 +28,7 @@ public class RoomMenu {
             System.out.println("3. Search a room by number (binary search)");
             System.out.println("4. View rooms sorted by rent");
             System.out.println("5. Add a room");
-            System.out.println("6. Change a room's rent");
+            System.out.println("6. Edit a room (number, floor, type, rent, AC)");
             System.out.println("7. Delete an empty room");
             System.out.println("0. Back");
             int choice = in.number("Choose: ", 0, 7);
@@ -39,7 +39,7 @@ public class RoomMenu {
                     case 3: search(); break;
                     case 4: print(rooms.roomsSortedByRent()); break;
                     case 5: add(); break;
-                    case 6: changeRent(); break;
+                    case 6: editRoom(); break;
                     case 7: delete(); break;
                     default: return;
                 }
@@ -85,18 +85,44 @@ public class RoomMenu {
         System.out.println("  Room " + r.getRoomNo() + " added with " + r.getCapacity() + " bed(s).");
     }
 
-    private void changeRent() throws SQLException {
-        String no = in.text("Room number: ");
-        double rent = in.amount("New rent per bed: ");
-        rooms.updateRent(no, rent);
-        System.out.println("  Rent updated. Bills already made keep the old rent; new bills use " + Money.inr(rent) + " per bed.");
-    }
-
     private void delete() throws SQLException {
         String no = in.text("Room number to delete: ");
         if (in.yesNo("Really delete room " + no + "?")) {
             rooms.deleteRoom(no);
             System.out.println("  Room deleted.");
         }
+    }
+
+    private void editRoom() throws SQLException {
+        Room r = rooms.requireRoom(in.text("Room number to edit: "));
+        System.out.println("  Press Enter to keep the value in [brackets].");
+        String no = keep(in.line("  Room number [" + r.getRoomNo() + "]: "), r.getRoomNo());
+        String floorText = keep(in.line("  Floor [" + r.getFloor() + "]: "), String.valueOf(r.getFloor()));
+        int floor;
+        try {
+            floor = Integer.parseInt(floorText);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Floor must be a whole number");
+        }
+        String typeText = keep(in.line("  Type 1=SINGLE 2=DOUBLE 3=TRIPLE [" + r.getType() + "]: "), "");
+        RoomType type = r.getType();
+        if (typeText.matches("[1-3]")) {
+            type = RoomType.values()[Integer.parseInt(typeText) - 1];
+        }
+        String rentText = keep(in.line("  Rent per bed [" + com.pgms.util.Money.plain(r.getRentPerBed()) + "]: "),
+                String.valueOf(r.getRentPerBed()));
+        double rent;
+        try {
+            rent = Double.parseDouble(rentText.replace(",", ""));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Rent must be a number");
+        }
+        String acText = keep(in.line("  AC room? y/n [" + (r.hasAc() ? "y" : "n") + "]: "), r.hasAc() ? "y" : "n");
+        Room u = rooms.editRoom(r.getRoomNo(), no, floor, type, rent, acText.toLowerCase().startsWith("y"));
+        System.out.println("  Room " + u.getRoomNo() + " saved. Bills already made keep their old rent.");
+    }
+
+    static String keep(String typed, String old) {
+        return typed == null || typed.trim().isEmpty() ? old : typed.trim();
     }
 }

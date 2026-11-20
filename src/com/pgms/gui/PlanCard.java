@@ -20,13 +20,31 @@ public class PlanCard extends JComponent {
     private final MessPlan plan;
     private final int tenants;
     private final int gradient;
+    private boolean selected;
 
-    /** gradient = index into Theme.GRADS. */
-    public PlanCard(MessPlan plan, int tenants, int gradient) {
+    /** gradient = index into Theme.GRADS; onClick runs when the card is clicked. */
+    public PlanCard(MessPlan plan, int tenants, int gradient, final Runnable onClick) {
         this.plan = plan;
         this.tenants = tenants;
         this.gradient = gradient;
+        setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+        setToolTipText("Click to select this plan");
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                onClick.run();
+            }
+        });
         setPreferredSize(new Dimension(220, 150));
+    }
+
+    public MessPlan plan() {
+        return plan;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        repaint();
     }
 
     @Override
@@ -51,7 +69,7 @@ public class PlanCard extends JComponent {
         g.setFont(Theme.H2);
         g.drawString(plan.getName(), 16, 34);
         g.setFont(Theme.SMALL);
-        g.drawString("PLAN #" + plan.getId(), 16, 56);
+        g.drawString(selected ? "PLAN #" + plan.getId() + "  |  SELECTED" : "PLAN #" + plan.getId(), 16, 56);
 
         int x = 16;
         for (int i = 0; i < plan.getMealsPerDay(); i++) {
@@ -78,6 +96,11 @@ public class PlanCard extends JComponent {
         g.drawRoundRect(px, 38, pw, 26, 26, 26);
         g.setColor(Theme.INK);
         g.drawString(count, px + 11, 56);
+        if (selected) {
+            g.setColor(Color.WHITE);
+            g.setStroke(new BasicStroke(3f));
+            g.drawRoundRect(2, 2, w - 5, h - 5, 16, 16);
+        }
         g.dispose();
     }
 }

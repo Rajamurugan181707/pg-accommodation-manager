@@ -50,13 +50,15 @@ public class Main {
                     System.out.println("2. Tenant module");
                     System.out.println("3. Rent module");
                     System.out.println("4. Mess module");
+                    System.out.println("5. Settings (names shown in the app)");
                     System.out.println("0. Exit");
-                    int choice = in.number("Choose: ", 0, 4);
+                    int choice = in.number("Choose: ", 0, 5);
                     switch (choice) {
                         case 1: roomMenu.show(); break;
                         case 2: tenantMenu.show(); break;
                         case 3: rentMenu.show(); break;
                         case 4: messMenu.show(); break;
+                        case 5: settings(in); break;
                         default:
                             System.out.println("Goodbye.");
                             return;
@@ -99,5 +101,24 @@ public class Main {
         System.out.println(month + ": billed " + Money.inr(billed) + ", pending " + Money.inr(pending)
                 + " from " + unpaid + " tenant(s)");
         System.out.println("---------------------------------------------");
+    }
+
+    private static void settings(ConsoleInput in) throws SQLException {
+        com.pgms.service.SettingsService s = new com.pgms.service.SettingsService();
+        String a = s.get(com.pgms.service.SettingsService.PG_NAME);
+        String b = s.get(com.pgms.service.SettingsService.PG_TAGLINE);
+        String c = s.get(com.pgms.service.SettingsService.OWNER_NAME);
+        String d = s.get(com.pgms.service.SettingsService.OWNER_LINE);
+        System.out.println("  Press Enter to keep the value in [brackets].");
+        a = RoomMenu.keep(in.line("  PG name [" + a + "]: "), a);
+        b = RoomMenu.keep(in.line("  Tagline [" + b + "]: "), b);
+        c = RoomMenu.keep(in.line("  Owner / manager name [" + c + "]: "), c);
+        d = RoomMenu.keep(in.line("  Footer line [" + d + "]: "), d);
+        try {
+            s.save(a, b, c, d);
+            System.out.println("  Names saved.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("  ! " + e.getMessage());
+        }
     }
 }

@@ -41,8 +41,9 @@ public class TenantMenu {
             System.out.println("5. Shift a tenant to another room");
             System.out.println("6. Check out a tenant");
             System.out.println("7. View past tenants");
+            System.out.println("8. Edit a tenant's details");
             System.out.println("0. Back");
-            int choice = in.number("Choose: ", 0, 7);
+            int choice = in.number("Choose: ", 0, 8);
             try {
                 switch (choice) {
                     case 1: register(); break;
@@ -52,6 +53,7 @@ public class TenantMenu {
                     case 5: shift(); break;
                     case 6: checkout(); break;
                     case 7: print(tenants.pastTenants()); break;
+                    case 8: editDetails(); break;
                     default: return;
                 }
             } catch (IllegalArgumentException e) {
@@ -190,5 +192,43 @@ public class TenantMenu {
             tenants.checkout(id, leaving);
             System.out.println("  Checked out. Room " + t.getRoomNo() + " has a free bed again.");
         }
+    }
+
+    private void editDetails() throws SQLException {
+        Tenant t = tenants.requireTenant(in.number("Tenant ID: ", 1, Integer.MAX_VALUE));
+        System.out.println("  Press Enter to keep the value in [brackets]. Type - to clear an optional field.");
+        String name = RoomMenu.keep(in.line("  Name [" + t.getName() + "]: "), t.getName());
+        String phone = RoomMenu.keep(in.line("  Mobile [" + t.getPhone() + "]: "), t.getPhone());
+        String email = optional(in.line("  Email [" + (t.getEmail() == null ? "" : t.getEmail()) + "]: "), t.getEmail());
+        String g = RoomMenu.keep(in.line("  Gender 1=MALE 2=FEMALE 3=OTHER [" + t.getGender() + "]: "), "");
+        Gender gender = g.matches("[1-3]") ? Gender.values()[Integer.parseInt(g) - 1] : t.getGender();
+        String job = optional(in.line("  Occupation [" + (t.getOccupation() == null ? "" : t.getOccupation()) + "]: "),
+                t.getOccupation());
+        String joinText = RoomMenu.keep(in.line("  Joining date [" + Dates.format(t.getJoinDate()) + "]: "),
+                Dates.format(t.getJoinDate()));
+        String depText = RoomMenu.keep(in.line("  Deposit [" + com.pgms.util.Money.plain(t.getDeposit()) + "]: "),
+                String.valueOf(t.getDeposit()));
+        java.sql.Date joined;
+        double deposit;
+        try {
+            joined = Dates.parse(joinText);
+        } catch (java.text.ParseException e) {
+            throw new IllegalArgumentException("Joining date must look like 2026-11-20");
+        }
+        try {
+            deposit = Double.parseDouble(depText.replace(",", ""));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Deposit must be a number");
+        }
+        Tenant u = tenants.editDetails(t.getId(), name, phone, email, gender, job, deposit, joined);
+        System.out.println("  Saved " + u.getName() + "'s details.");
+    }
+
+    /** Enter keeps the old value; "-" clears it. */
+    private static String optional(String typed, String old) {
+        if (typed == null || typed.trim().isEmpty()) {
+            return old;
+        }
+        return typed.trim().equals("-") ? null : typed.trim();
     }
 }

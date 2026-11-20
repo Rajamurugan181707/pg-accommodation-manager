@@ -31,21 +31,27 @@ import java.util.Date;
 public class MainWindow extends JFrame {
 
     private static final long serialVersionUID = 1L;
-    static final String[] PAGES = {"Dashboard", "Rooms", "Tenants", "Rent", "Mess"};
-    private static final String[] ICONS = {"home", "bed", "users", "receipt", "bowl"};
+    static final String[] PAGES = {"Dashboard", "Rooms", "Tenants", "Rent", "Mess", "Settings"};
+    private static final String[] ICONS = {"home", "bed", "users", "receipt", "bowl", "gear"};
     private static final String[] SUBTITLES = {
         "Today at a glance: beds, tenants and this month's money",
         "Every room, its beds and its rent. Click a room card to select it.",
         "Who is staying, who has left, and moving people around",
         "Monthly bills, payments and who still has to pay",
-        "Meal plans, headcount and this week's menu"
+        "Meal plans, headcount and this week's menu",
+        "Change the names shown in the app"
     };
 
     private final CardLayout cards = new CardLayout();
     private final JPanel content = new JPanel(cards);
     private final Screen[] screens = {
-        new DashboardPanel(), new RoomsPanel(), new TenantsPanel(), new RentPanel(), new MessPanel()
+        new DashboardPanel(), new RoomsPanel(), new TenantsPanel(), new RentPanel(), new MessPanel(),
+        new SettingsPanel(this::applySettings)
     };
+    private final JLabel appName = Ui.heading("PG Manager");
+    private final JLabel appTag = Ui.small("ACCOMMODATION");
+    private final JLabel ownerName = Ui.bold("");
+    private final JLabel ownerLine = Ui.small("");
     private final JButton[] nav = new JButton[PAGES.length];
     private final JLabel pageTitle = Ui.label("");
     private final JLabel pageSub = Ui.label("");
@@ -92,7 +98,23 @@ public class MainWindow extends JFrame {
         setMinimumSize(new Dimension(1180, 760));
         setSize(1320, 840);
         setLocationRelativeTo(null);
+        applySettings();
         open(0);
+    }
+
+    /** Put the saved names (Settings page) into the sidebar and the window title. */
+    void applySettings() {
+        try {
+            com.pgms.service.SettingsService s = new com.pgms.service.SettingsService();
+            String name = s.get(com.pgms.service.SettingsService.PG_NAME);
+            appName.setText(name);
+            appTag.setText(s.get(com.pgms.service.SettingsService.PG_TAGLINE).toUpperCase());
+            ownerName.setText(s.get(com.pgms.service.SettingsService.OWNER_NAME));
+            ownerLine.setText(s.get(com.pgms.service.SettingsService.OWNER_LINE).toUpperCase());
+            setTitle(name + " - PG Accommodation Management System");
+        } catch (Exception e) {
+            Ui.problem(this, e);
+        }
     }
 
     private JComponent sidebar() {
@@ -117,10 +139,9 @@ public class MainWindow extends JFrame {
         brand.add(new LogoMark(), BorderLayout.WEST);
         JPanel names = new JPanel(new GridLayout(2, 1));
         names.setOpaque(false);
-        JLabel app = Ui.heading("PG Manager");
-        app.setFont(Theme.font(java.awt.Font.BOLD, 19));
-        names.add(app);
-        names.add(Ui.small("ACCOMMODATION"));
+        appName.setFont(Theme.font(java.awt.Font.BOLD, 19));
+        names.add(appName);
+        names.add(appTag);
         brand.add(names, BorderLayout.CENTER);
 
         JPanel top = new JPanel(new BorderLayout(0, 26));
@@ -148,8 +169,8 @@ public class MainWindow extends JFrame {
         db.setIconTextGap(8);
         footer.add(db);
         footer.add(Ui.bold("MySQL connected"));
-        footer.add(Ui.bold("A. Raja Murugan"));
-        footer.add(Ui.small("II CSE F  |  MINI PROJECT"));
+        footer.add(ownerName);
+        footer.add(ownerLine);
         side.add(footer, BorderLayout.SOUTH);
         return side;
     }

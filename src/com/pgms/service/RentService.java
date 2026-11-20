@@ -219,4 +219,51 @@ public class RentService {
         }
         return sum;
     }
+
+    public RentPayment requirePayment(int paymentId) throws SQLException {
+        RentPayment p = rentDao.findById(paymentId);
+        if (p == null) {
+            throw new IllegalArgumentException("No receipt #" + paymentId);
+        }
+        return p;
+    }
+
+    /** Correct a payment. The month's payments may still not add up to more than its bill. */
+    public RentPayment editPayment(int paymentId, double amount, Date paidOn, PaymentMode mode, String note)
+            throws SQLException {
+        RentPayment old = requirePayment(paymentId);
+        RentPayment checked = new RentPayment(paymentId, old.getTenantId(), old.getBillMonth(), amount,
+                paidOn, mode, note);   // checks amount and note
+        Check.notFuture(paidOn, "Payment date");
+        DueLine line = dueFor(old.getTenantId(), old.getBillMonth());
+        double otherPayments = Check.paise(line.paid() - old.getAmount());
+        if (Check.paise(otherPayments + checked.getAmount()) > line.due()) {
+            throw new IllegalArgumentException("That would make " + Money.inr(otherPayments + checked.getAmount())
+                    + " paid against a bill of " + Money.inr(line.due()) + " for " + old.getBillMonth()
+                    + ". The most this receipt can be is " + Money.inr(line.due() - otherPayments) + ".");
+        }
+        rentDao.update(paymentId, checked.getAmount(), paidOn, mode, checked.getNote());
+        return requirePayment(paymentId);
+    }
+
+    public void deletePayment(int paymentId) throws SQLException {
+        requirePayment(paymentId);
+        rentDao.delete(paymentId);
+    }
+
+    /**
+     * Correct one month's saved bill (e.g. a discount, or a wrong charge).
+     * The new total cannot be less than what has already been paid for that month.
+     */
+    public DueLine editBill(int tenantId, String month, double roomRent, double messCharge) throws SQLException {
+        DueLine line = dueFor(tenantId, month);   // makes the bill if missing; refuses future months
+        double rent = Check.money(roomRent, false, "Room rent");
+        double mess = Check.money(messCharge, true, "Mess charge");
+        if (Check.paise(rent + mess) < line.paid()) {
+            throw new IllegalArgumentException(line.getTenant().getName() + " has already paid "
+                    + Money.inr(line.paid()) + " for " + month + ", so the bill cannot be less than that");
+        }
+        billDao.updateAmounts(tenantId, month, rent, mess);
+        return dueFor(tenantId, month);
+    }
 }

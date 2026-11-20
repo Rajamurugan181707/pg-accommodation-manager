@@ -116,4 +116,27 @@ public class RoomDAO {
                 rs.getDouble("rent_per_bed"),
                 rs.getBoolean("has_ac"));
     }
+
+    /**
+     * Change every detail of a room. The type can only shrink the room if the
+     * people already in it still fit (occupied <= new capacity), checked in SQL.
+     * Returns false if they would not fit.
+     */
+    public boolean update(int roomId, String roomNo, int floor, com.pgms.model.RoomType type,
+                          double rentPerBed, boolean ac) throws SQLException {
+        String sql = "UPDATE rooms SET room_no = ?, floor_no = ?, room_type = ?, capacity = ?, "
+                + "rent_per_bed = ?, has_ac = ? WHERE room_id = ? AND occupied <= ?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, roomNo);
+            ps.setInt(2, floor);
+            ps.setString(3, type.name());
+            ps.setInt(4, type.beds());
+            ps.setDouble(5, rentPerBed);
+            ps.setBoolean(6, ac);
+            ps.setInt(7, roomId);
+            ps.setInt(8, type.beds());
+            return ps.executeUpdate() == 1;
+        }
+    }
 }

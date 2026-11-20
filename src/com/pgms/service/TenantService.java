@@ -113,4 +113,30 @@ public class TenantService {
         }
         dao.updateMessPlan(tenantId, planId);
     }
+
+    /**
+     * Edit a tenant's personal details. The phone must not clash with another
+     * current tenant; the joining date follows the same rules as registering.
+     * Room, mess plan and check-out have their own actions.
+     */
+    public Tenant editDetails(int tenantId, String name, String phone, String email, Gender gender,
+                              String occupation, double deposit, Date joinDate) throws SQLException {
+        Tenant old = requireTenant(tenantId);
+        Tenant t = new Tenant(tenantId, name, phone, email, gender, occupation,
+                old.getRoomId(), old.getMessPlanId(), joinDate, deposit);   // constructor checks every field
+        if (old.isActive() && dao.phoneUsedByOther(t.getPhone(), tenantId)) {
+            throw new IllegalArgumentException("Another current tenant already has phone " + t.getPhone());
+        }
+        Check.notBeyond(joinDate, 31, "Joining date");
+        if (old.getLeaveDate() != null && joinDate.after(old.getLeaveDate())) {
+            throw new IllegalArgumentException("Joining date cannot be after the leaving date ("
+                    + com.pgms.util.Dates.format(old.getLeaveDate()) + ")");
+        }
+        dao.updateDetails(t);
+        return requireTenant(tenantId);
+    }
+
+    public int tenantsOnPlan(int planId) throws SQLException {
+        return dao.countOnPlan(planId);
+    }
 }

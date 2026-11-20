@@ -141,6 +141,14 @@ public final class Icons {
             g.draw(line(s, .85, .19, .85, .8));
             g.draw(new Arc2D.Double(s * .15, s * .69, s * .7, s * .22, 180, 180, Arc2D.OPEN));
             g.draw(new Arc2D.Double(s * .15, s * .42, s * .7, s * .22, 180, 180, Arc2D.OPEN));
+        } else if ("gear".equals(name)) {
+            g.draw(new Ellipse2D.Double(s * .34, s * .34, s * .32, s * .32));
+            for (int i = 0; i < 8; i++) {
+                double a = Math.PI / 4 * i;
+                g.draw(new Line2D.Double(s * (.5 + .27 * Math.cos(a)), s * (.5 + .27 * Math.sin(a)),
+                        s * (.5 + .42 * Math.cos(a)), s * (.5 + .42 * Math.sin(a))));
+            }
+            g.draw(new Ellipse2D.Double(s * .2, s * .2, s * .6, s * .6));
         } else if ("rupee".equals(name)) {
             g.draw(line(s, .25, .15, .78, .15));
             g.draw(line(s, .25, .37, .78, .37));

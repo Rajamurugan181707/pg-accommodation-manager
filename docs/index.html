@@ -152,6 +152,7 @@ svg text{fill:#FFFFFF !important}
     <a class="logo" href="#top" aria-label="PG Manager home"><span class="mark">PG</span><span class="name">PG Manager</span></a>
     <nav aria-label="Sections">
       <a href="#features">Features</a>
+      <a href="#edit" class="hide-sm">Editing</a>
       <a href="#screens" class="hide-sm">Screens</a>
       <a href="#inside" class="hide-sm">How it works</a>
       <a href="#run">Run it</a>
@@ -177,7 +178,7 @@ svg text{fill:#FFFFFF !important}
     <div class="facts">
       <span class="fact">Java 8+</span><span class="fact">JDBC</span><span class="fact">MySQL</span><span class="fact">Swing GUI + console</span><span class="fact">DS: Array</span>
     </div>
-    <div class="shot"><img src="gui-dashboard.png?v=2" alt="Dashboard of the app: occupancy, tenants, collected and pending cards, a bed map for each room, a collection ring, a six-month bar chart and the list of tenants who still owe this month." width="1320" height="812"></div>
+    <div class="shot"><img src="gui-dashboard.png?v=3" alt="Dashboard of the app: occupancy, tenants, collected and pending cards, a bed map for each room, a collection ring, a six-month bar chart and the list of tenants who still owe this month." width="1320" height="812"></div>
   </div>
 
   <section id="features">
@@ -213,6 +214,30 @@ svg text{fill:#FFFFFF !important}
     </div>
   </section>
 
+  <section id="edit">
+    <div class="wrap">
+      <h2>Everything is editable</h2>
+      <p class="sub">Every record can be corrected after it is saved. The same safety rules still apply to every edit.</p>
+      <div class="scroll">
+        <table class="table">
+          <thead><tr><th>What</th><th>You can edit</th><th>Rule that still holds</th></tr></thead>
+          <tbody>
+            <tr><td>Room</td><td>Number, floor, type, AC, rent</td><td>A room can't shrink below the people in it</td></tr>
+            <tr><td>Tenant</td><td>Name, phone, email, gender, occupation, deposit, joining date</td><td>Phone unique among current tenants</td></tr>
+            <tr><td>Payment</td><td>Amount, date, mode, note, or delete it</td><td>Payments can't add up to more than the bill</td></tr>
+            <tr><td>Bill</td><td>One month's room rent and mess charge</td><td>Can't go below what is already paid</td></tr>
+            <tr><td>Mess plan</td><td>Name, meals, charge, or delete it</td><td>A plan someone has used is kept</td></tr>
+            <tr><td>App names</td><td>PG name, tagline, owner name, footer line</td><td>Shown live in the sidebar and title</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="gallery" style="margin-top:22px">
+        <figure><img src="gui-settings.png?v=3" alt="Settings page: fields for PG name, tagline, owner name and footer line; the sidebar shows the new name Sri Murugan PG." loading="lazy" width="1320" height="812"><figcaption><b>Settings</b>Rename the PG; the sidebar and window title change at once.</figcaption></figure>
+        <figure><img src="gui-edit-payment.png?v=3" alt="Edit payment form: receipt picker, amount, mode, paid on date, note, and a Delete this receipt checkbox." loading="lazy" width="497" height="386"><figcaption><b>Edit payment</b>Pick a receipt, fix it, or delete it.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
   <section id="screens">
     <div class="wrap">
       <h2>Screens</h2>
@@ -223,12 +248,12 @@ svg text{fill:#FFFFFF !important}
         <span class="pill" style="border-color:var(--magenta);background:#6A1A55"><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="#fff" stroke-width="2"/></svg>UNPAID: empty circle</span>
       </div>
       <div class="gallery" style="margin-top:22px">
-        <figure><img src="gui-rooms.png?v=2" alt="Rooms page with room cards; room 101 is selected with a gold outline and the word SELECTED." loading="lazy" width="1320" height="812"><figcaption><b>Rooms</b>Each room is a card. A taken bed is filled; a free bed is an outline.</figcaption></figure>
-        <figure><img src="gui-tenants.png?v=2" alt="Tenants page: a search box and a table with initials avatars and ACTIVE status pills." loading="lazy" width="1320" height="812"><figcaption><b>Tenants</b>Search filters as you type. Register, shift, change plan, check out.</figcaption></figure>
-        <figure><img src="gui-rent.png?v=2" alt="Rent page: billed, collected and pending cards above a dues table with UNPAID and PARTIAL pills." loading="lazy" width="1320" height="812"><figcaption><b>Rent</b>Billed, collected and pending for the month, with the most pending first.</figcaption></figure>
-        <figure><img src="gui-mess.png?v=2" alt="Mess page: four plan cards with bowl icons and tenant counts, and the weekly menu table." loading="lazy" width="1320" height="812"><figcaption><b>Mess</b>Plan cards with headcount, and the weekly menu with today marked.</figcaption></figure>
-        <figure><img src="gui-register-form.png?v=2" alt="Register a tenant form with fields for name, mobile, email, gender, occupation, room, mess plan, joining date and deposit." loading="lazy" width="512" height="515"><figcaption><b>Register form</b>The room list offers only rooms with a free bed. A wrong entry shows a message and keeps what you typed.</figcaption></figure>
-        <figure><img src="gui-statement.png?v=2" alt="Statement pop-up for a tenant: month-by-month bill, paid, pending and status, followed by receipts." loading="lazy" width="740" height="391"><figcaption><b>Statement</b>Month by month from joining, with every receipt listed.</figcaption></figure>
+        <figure><img src="gui-rooms.png?v=3" alt="Rooms page with room cards; room 101 is selected with a gold outline and the word SELECTED." loading="lazy" width="1320" height="812"><figcaption><b>Rooms</b>Each room is a card. A taken bed is filled; a free bed is an outline.</figcaption></figure>
+        <figure><img src="gui-tenants.png?v=3" alt="Tenants page: a search box and a table with initials avatars and ACTIVE status pills." loading="lazy" width="1320" height="812"><figcaption><b>Tenants</b>Search filters as you type. Register, shift, change plan, check out.</figcaption></figure>
+        <figure><img src="gui-rent.png?v=3" alt="Rent page: billed, collected and pending cards above a dues table with UNPAID and PARTIAL pills." loading="lazy" width="1320" height="812"><figcaption><b>Rent</b>Billed, collected and pending for the month, with the most pending first.</figcaption></figure>
+        <figure><img src="gui-mess.png?v=3" alt="Mess page: four plan cards with bowl icons and tenant counts, and the weekly menu table." loading="lazy" width="1320" height="812"><figcaption><b>Mess</b>Plan cards with headcount, and the weekly menu with today marked.</figcaption></figure>
+        <figure><img src="gui-register-form.png?v=3" alt="Register a tenant form with fields for name, mobile, email, gender, occupation, room, mess plan, joining date and deposit." loading="lazy" width="512" height="515"><figcaption><b>Register form</b>The room list offers only rooms with a free bed. A wrong entry shows a message and keeps what you typed.</figcaption></figure>
+        <figure><img src="gui-statement.png?v=3" alt="Statement pop-up for a tenant: month-by-month bill, paid, pending and status, followed by receipts." loading="lazy" width="740" height="391"><figcaption><b>Statement</b>Month by month from joining, with every receipt listed.</figcaption></figure>
       </div>
     </div>
   </section>

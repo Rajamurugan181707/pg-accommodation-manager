@@ -68,4 +68,24 @@ public class MessDAO {
             ps.executeUpdate();
         }
     }
+
+    public void updatePlan(int planId, String name, int mealsPerDay, double charge) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "UPDATE mess_plans SET plan_name = ?, meals_per_day = ?, monthly_charge = ? WHERE plan_id = ?")) {
+            ps.setString(1, name);
+            ps.setInt(2, mealsPerDay);
+            ps.setDouble(3, charge);
+            ps.setInt(4, planId);
+            ps.executeUpdate();
+        }
+    }
+
+    public void deletePlan(int planId) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM mess_plans WHERE plan_id = ?")) {
+            ps.setInt(1, planId);
+            ps.executeUpdate();
+        }
+    }
 }

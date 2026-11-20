@@ -34,8 +34,11 @@ public class RentMenu {
             System.out.println("3. A tenant's bill for a month");
             System.out.println("4. A tenant's full statement");
             System.out.println("5. Payments received in a month");
+            System.out.println("6. Edit a payment");
+            System.out.println("7. Delete a payment");
+            System.out.println("8. Edit a month's bill");
             System.out.println("0. Back");
-            int choice = in.number("Choose: ", 0, 5);
+            int choice = in.number("Choose: ", 0, 8);
             try {
                 switch (choice) {
                     case 1: record(); break;
@@ -43,6 +46,9 @@ public class RentMenu {
                     case 3: bill(); break;
                     case 4: statement(); break;
                     case 5: received(); break;
+                    case 6: editPayment(); break;
+                    case 7: deletePayment(); break;
+                    case 8: editBill(); break;
                     default: return;
                 }
             } catch (IllegalArgumentException e) {
@@ -145,5 +151,55 @@ public class RentMenu {
         System.out.println("Payments towards " + month + ":");
         t.print();
         System.out.println("  Total received: " + Money.inr(total));
+    }
+
+    private void editPayment() throws SQLException {
+        RentPayment p = rent.requirePayment(in.number("Receipt number: ", 1, Integer.MAX_VALUE));
+        System.out.println("  Receipt #" + p.getId() + ": " + p.getTenantName() + ", " + p.getBillMonth()
+                + ". Press Enter to keep the value in [brackets].");
+        String a = RoomMenu.keep(in.line("  Amount [" + com.pgms.util.Money.plain(p.getAmount()) + "]: "),
+                String.valueOf(p.getAmount()));
+        String m = RoomMenu.keep(in.line("  Mode 1=CASH 2=UPI 3=CARD 4=BANK [" + p.getMode() + "]: "), "");
+        String d = RoomMenu.keep(in.line("  Paid on [" + Dates.format(p.getPaidOn()) + "]: "), Dates.format(p.getPaidOn()));
+        String n = in.line("  Note [" + (p.getNote() == null ? "" : p.getNote()) + "]: ");
+        double amount;
+        java.sql.Date on;
+        try {
+            amount = Double.parseDouble(a.replace(",", ""));
+            on = Dates.parse(d);
+        } catch (NumberFormatException | java.text.ParseException e) {
+            throw new IllegalArgumentException("Amount must be a number and the date must look like 2026-11-20");
+        }
+        PaymentMode mode = m.matches("[1-4]") ? PaymentMode.values()[Integer.parseInt(m) - 1] : p.getMode();
+        String note = n.trim().isEmpty() ? p.getNote() : n.trim().equals("-") ? null : n.trim();
+        RentPayment u = rent.editPayment(p.getId(), amount, on, mode, note);
+        System.out.println("  Receipt #" + u.getId() + " saved: " + Money.inr(u.getAmount()) + ".");
+    }
+
+    private void deletePayment() throws SQLException {
+        RentPayment p = rent.requirePayment(in.number("Receipt number to delete: ", 1, Integer.MAX_VALUE));
+        if (in.yesNo("Delete receipt #" + p.getId() + " (" + p.getTenantName() + ", " + p.getBillMonth() + ", "
+                + Money.inr(p.getAmount()) + ")? This cannot be undone.")) {
+            rent.deletePayment(p.getId());
+            System.out.println("  Receipt #" + p.getId() + " deleted.");
+        }
+    }
+
+    private void editBill() throws SQLException {
+        int id = in.number("Tenant ID: ", 1, Integer.MAX_VALUE);
+        String month = in.month("Month");
+        DueLine l = rent.dueFor(id, month);
+        double roomPart = l.getItems()[0].monthlyCharge();
+        double messPart = l.getItems().length > 1 ? l.getItems()[1].monthlyCharge() : 0;
+        System.out.println("  " + l.getTenant().getName() + ", " + month + ": paid so far " + Money.inr(l.paid())
+                + ". Press Enter to keep the value in [brackets].");
+        String r = RoomMenu.keep(in.line("  Room rent [" + com.pgms.util.Money.plain(roomPart) + "]: "), String.valueOf(roomPart));
+        String m = RoomMenu.keep(in.line("  Mess charge [" + com.pgms.util.Money.plain(messPart) + "]: "), String.valueOf(messPart));
+        try {
+            DueLine u = rent.editBill(id, month, Double.parseDouble(r.replace(",", "")), Double.parseDouble(m.replace(",", "")));
+            System.out.println("  Bill saved: " + Money.inr(u.due()) + ", pending " + Money.inr(u.pending()) + ".");
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Amounts must be numbers");
+        }
     }
 }

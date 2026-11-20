@@ -82,4 +82,30 @@ public class MessService {
         }
         return counts;
     }
+
+    public MessPlan editPlan(final int planId, String name, int mealsPerDay, double charge) throws SQLException {
+        requirePlan(planId);
+        final MessPlan checked = new MessPlan(planId, name, mealsPerDay, charge);   // checks every field
+        if (plans().indexOf(new DynamicArray.Matcher<MessPlan>() {
+            @Override
+            public boolean matches(MessPlan p) {
+                return p.getId() != planId && p.getName().equalsIgnoreCase(checked.getName());
+            }
+        }) >= 0) {
+            throw new IllegalArgumentException("A plan called " + checked.getName() + " already exists");
+        }
+        dao.updatePlan(planId, checked.getName(), mealsPerDay, checked.monthlyCharge());
+        return checked;
+    }
+
+    /** Only a plan that no tenant (current or past) has ever used can be deleted. */
+    public void deletePlan(int planId) throws SQLException {
+        MessPlan p = requirePlan(planId);
+        int used = new TenantDAO().countOnPlan(planId);
+        if (used > 0) {
+            throw new IllegalArgumentException("'" + p.getName() + "' is on " + used
+                    + " tenant record(s), so it is kept. Move them to another plan first.");
+        }
+        dao.deletePlan(planId);
+    }
 }
