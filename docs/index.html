@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PG Manager</title>
+<meta name="description" content="PG Accommodation Management System: a Java, JDBC and MySQL app for running a PG hostel. Rooms, tenants, rent and mess. II CSE mini project.">
+<style>
+:root{
+  --bg:#0A0E13; --bg2:#0F151C; --panel:#141C25; --panel2:#1A242F; --raise:#1F2C39;
+  --line:#25323F; --line2:#35485E;
+  --ink:#FFFFFF; --dark:#06121C;
+  --azure:#3FA7FF; --amber:#FF9F35; --violet:#B07BFF; --cyan:#26D7C8; --gold:#F5D33B; --steel:#4A6076;
+  --sans:"Avenir Next","Segoe UI","Helvetica Neue",Arial,system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--ink)}
+img{max-width:100%;display:block}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:10;background:rgba(10,14,19,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:18px;height:64px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:800;font-size:18px}
+.mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#6BBCFF,#2A8DE6);display:grid;place-items:center;color:var(--dark)!important;font-weight:800;font-size:15px;position:relative}
+.mark::after{content:"";position:absolute;left:8px;right:8px;bottom:6px;height:3px;border-radius:2px;background:var(--gold)}
+.top nav{margin-left:auto;display:flex;gap:4px;overflow-x:auto}
+.top nav a{text-decoration:none;font-weight:700;font-size:14px;padding:8px 12px;border-radius:9px;white-space:nowrap}
+.top nav a:hover{background:var(--raise)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-weight:800;font-size:15px;text-decoration:none;padding:13px 20px;border-radius:12px;border:1px solid transparent;cursor:pointer}
+.btn svg{width:18px;height:18px}
+.btn.primary{background:var(--azure);color:var(--dark)!important}
+.btn.primary:hover{background:#6BBCFF}
+.btn.ghost{background:var(--raise);border-color:var(--line2)}
+.btn.ghost:hover{border-color:var(--steel);background:#263646}
+
+/* hero */
+.hero{padding-top:64px;padding-bottom:28px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;display:inline-flex;gap:10px;align-items:center;border:1px solid var(--line2);border-radius:99px;padding:6px 14px;background:var(--bg2)}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--cyan);display:inline-block}
+h1{font-size:clamp(34px,6vw,58px);line-height:1.06;letter-spacing:-.02em;margin:18px 0 14px;text-wrap:balance;font-weight:800}
+.lede{font-size:19px;max-width:62ch;margin:0 0 26px}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.fact{font-family:var(--mono);font-size:13px;font-weight:700;border:1px solid var(--line2);border-radius:99px;padding:6px 12px;background:var(--panel)}
+.shot{margin-top:40px;border:1px solid var(--line2);border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.55);background:var(--panel)}
+.shot img{width:100%}
+
+/* sections */
+section{padding:56px 0}
+h2{font-size:clamp(26px,3.6vw,36px);letter-spacing:-.01em;margin:0 0 10px;font-weight:800;text-wrap:balance}
+.sub{max-width:66ch;margin:0 0 28px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:22px;position:relative}
+.card .bar{position:absolute;top:0;left:22px;width:44px;height:4px;border-radius:0 0 4px 4px}
+.card h3{margin:14px 0 8px;font-size:19px}
+.card ul{margin:0;padding-left:18px;font-size:15px}
+.card li{margin:4px 0}
+.ico{width:44px;height:44px;border-radius:50%;background:var(--raise);display:grid;place-items:center;border:1.5px solid var(--line2)}
+.ico svg{width:22px;height:22px}
+
+/* gallery */
+.gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+figure img{width:100%;border-bottom:1px solid var(--line)}
+figcaption{padding:14px 16px;font-size:15px}
+figcaption b{display:block;font-size:16px}
+
+/* concept table */
+.table{width:100%;border-collapse:collapse;background:var(--bg2);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:15px}
+.table th{background:var(--panel2);text-align:left;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:12px 16px;border-bottom:2px solid var(--line2)}
+.table td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+.table tr:nth-child(even) td{background:var(--panel)}
+.table code,.inline{font-family:var(--mono);font-size:13.5px;background:var(--raise);border:1px solid var(--line2);border-radius:6px;padding:1px 6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.scroll{overflow-x:auto}
+
+/* steps */
+.steps{display:grid;gap:14px;counter-reset:s}
+.step{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.num{width:36px;height:36px;border-radius:50%;border:2px solid var(--azure);display:grid;place-items:center;font-weight:800;font-family:var(--mono)}
+.step h3{margin:4px 0 6px;font-size:18px}
+.step > div{min-width:0}
+.step .inline{word-break:break-all}
+.code{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 10px 10px 14px;margin-top:8px}
+.code code{font-family:var(--mono);font-size:14px;overflow-x:auto;white-space:nowrap;flex:1;min-width:0}
+.copy{font-family:var(--sans);font-weight:800;font-size:13px;background:var(--raise);border:1px solid var(--line2);border-radius:8px;padding:6px 10px;cursor:pointer}
+.copy:hover{border-color:var(--steel)}
+
+/* legend of states */
+.states{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.pill{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:13px;border:1.5px solid;border-radius:99px;padding:4px 12px 4px 10px;background:var(--panel2)}
+.pill svg{width:14px;height:14px}
+
+footer{border-top:1px solid var(--line);padding:30px 0 44px;font-size:15px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;align-items:center}
+
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+@media (max-width:900px){
+  .grid4{grid-template-columns:repeat(2,1fr)}
+  .gallery,.two{grid-template-columns:1fr}
+  .top nav a.hide-sm{display:none}
+}
+@media (max-width:560px){
+  .grid4{grid-template-columns:1fr}
+  .hero{padding-top:40px}
+  section{padding:40px 0}
+  .step{grid-template-columns:1fr;gap:10px}
+  .logo span.name{display:none}
+  .btn{width:100%;justify-content:center}
+}
+
+/* every glyph white; dark only on the bright azure fill */
+body, body *{color:#FFFFFF !important}
+svg text{fill:#FFFFFF !important}
+.btn.primary, .btn.primary *, .mark{color:#06121C !important}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="PG Manager home"><span class="mark">PG</span><span class="name">PG Manager</span></a>
+    <nav aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#screens" class="hide-sm">Screens</a>
+      <a href="#inside" class="hide-sm">How it works</a>
+      <a href="#run">Run it</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <span class="eyebrow"><i></i>II CSE F mini project  |  DS + OOPS</span>
+    <h1>PG Accommodation Management System</h1>
+    <p class="lede">A Java app for the owner or warden of a PG hostel. It tracks rooms and beds, registers tenants, bills rent and mess every month, records payments, and shows who still has to pay. Everything is stored live in MySQL.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Rajamurugan181707/pg-accommodation-manager/releases/latest/download/PG-Manager.jar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+        Download the app (.jar)
+      </a>
+      <a class="btn ghost" href="https://github.com/Rajamurugan181707/pg-accommodation-manager">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/></svg>
+        View the code on GitHub
+      </a>
+    </div>
+    <div class="facts">
+      <span class="fact">Java 8+</span><span class="fact">JDBC</span><span class="fact">MySQL</span><span class="fact">Swing GUI + console</span><span class="fact">DS: Array</span>
+    </div>
+    <div class="shot"><img src="gui-dashboard.png" alt="Dashboard of the app: occupancy, tenants, collected and pending cards, a bed map for each room, a collection ring, a six-month bar chart and the list of tenants who still owe this month." width="1320" height="812"></div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>Four modules</h2>
+      <p class="sub">Each module is its own screen in the app. All of them read and write the same MySQL database.</p>
+      <div class="grid4">
+        <article class="card">
+          <span class="bar" style="background:var(--azure)"></span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6v14"/><rect x="2" y="12" width="20" height="5" rx="1.5"/><path d="M22 17v3"/><rect x="4" y="9" width="5" height="3.5" rx="1"/></svg></div>
+          <h3>Room</h3>
+          <ul><li>Rooms as cards, with each bed shown as taken or free</li><li>Find a room by number (binary search)</li><li>Sort by rent; show only rooms with free beds</li><li>Add, change rent, delete</li></ul>
+        </article>
+        <article class="card">
+          <span class="bar" style="background:var(--violet)"></span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="7" r="3.5"/><path d="M1.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/><circle cx="17" cy="8" r="2.8"/><path d="M15.5 13.6c3.6-.6 7 1.6 7 5.8"/></svg></div>
+          <h3>Tenant</h3>
+          <ul><li>Register a tenant and give them a bed</li><li>Search by name as you type (linear search)</li><li>Shift room, change mess plan</li><li>Check out, with the deposit and dues shown first</li></ul>
+        </article>
+        <article class="card">
+          <span class="bar" style="background:var(--cyan)"></span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 2h14v20l-3.5-2.4L12 22l-3.5-2.4L5 22z"/><path d="M8.5 7h7M8.5 11h7M8.5 15h4.5"/></svg></div>
+          <h3>Rent</h3>
+          <ul><li>Monthly bill = bed rent + mess charge</li><li>Part payments, with overpaying blocked</li><li>Dues list, with the most pending first</li><li>Bill, full statement and receipts</li></ul>
+        </article>
+        <article class="card">
+          <span class="bar" style="background:var(--gold)"></span>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 11h20a10 9 0 0 1-20 0z"/><path d="M8 3v5M12 2v6M16 3v5"/></svg></div>
+          <h3>Mess</h3>
+          <ul><li>Meal plans with headcount and income</li><li>Add plans; move tenants between them</li><li>Weekly menu, with today marked</li><li>Mess charge added to the monthly bill</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens">
+    <div class="wrap">
+      <h2>Screens</h2>
+      <p class="sub">A dark, colour-blind-safe interface. All text is white, and every state is written in words and shown with its own shape, never by colour alone.</p>
+      <div class="states" aria-label="How payment states are shown">
+        <span class="pill" style="border-color:var(--cyan)"><svg viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 7.5l3 3 7-7"/></svg>PAID: tick</span>
+        <span class="pill" style="border-color:var(--amber)"><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="#fff" stroke-width="2"/><path d="M7 2a5 5 0 0 0 0 10z" fill="#fff"/></svg>PARTIAL: half circle</span>
+        <span class="pill" style="border-color:var(--amber)"><svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="#fff" stroke-width="2"/></svg>UNPAID: empty circle</span>
+      </div>
+      <div class="gallery" style="margin-top:22px">
+        <figure><img src="gui-rooms.png" alt="Rooms page with room cards; room 101 is selected with a gold outline and the word SELECTED." loading="lazy" width="1320" height="812"><figcaption><b>Rooms</b>Each room is a card. A taken bed is filled; a free bed is an outline.</figcaption></figure>
+        <figure><img src="gui-tenants.png" alt="Tenants page: a search box and a table with initials avatars and ACTIVE status pills." loading="lazy" width="1320" height="812"><figcaption><b>Tenants</b>Search filters as you type. Register, shift, change plan, check out.</figcaption></figure>
+        <figure><img src="gui-rent.png" alt="Rent page: billed, collected and pending cards above a dues table with UNPAID and PARTIAL pills." loading="lazy" width="1320" height="812"><figcaption><b>Rent</b>Billed, collected and pending for the month, with the most pending first.</figcaption></figure>
+        <figure><img src="gui-mess.png" alt="Mess page: four plan cards with bowl icons and tenant counts, and the weekly menu table." loading="lazy" width="1320" height="812"><figcaption><b>Mess</b>Plan cards with headcount, and the weekly menu with today marked.</figcaption></figure>
+        <figure><img src="gui-register-form.png" alt="Register a tenant form with fields for name, mobile, email, gender, occupation, room, mess plan, joining date and deposit." loading="lazy" width="512" height="515"><figcaption><b>Register form</b>The room list offers only rooms with a free bed. A wrong entry shows a message and keeps what you typed.</figcaption></figure>
+        <figure><img src="gui-statement.png" alt="Statement pop-up for a tenant: month-by-month bill, paid, pending and status, followed by receipts." loading="lazy" width="740" height="391"><figcaption><b>Statement</b>Month by month from joining, with every receipt listed.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="inside">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <p class="sub">Where the data structure and OOPS concepts are in the code, and the design choices behind them.</p>
+      <div class="two">
+        <div class="scroll">
+          <table class="table">
+            <thead><tr><th>DS: Array</th><th>Where</th></tr></thead>
+            <tbody>
+              <tr><td>Growable array, written by hand (no <code>ArrayList</code>)</td><td><code>ds/DynamicArray</code></td></tr>
+              <tr><td>Linear search</td><td>Tenant search by name, free rooms</td></tr>
+              <tr><td>Insertion sort</td><td>Rooms by number or rent, dues by amount</td></tr>
+              <tr><td>Binary search</td><td>Find a room by number</td></tr>
+              <tr><td>Plain arrays</td><td><code>Billable[]</code> on a bill, <code>int[]</code> headcount</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="scroll">
+          <table class="table">
+            <thead><tr><th>OOPS</th><th>Where</th></tr></thead>
+            <tbody>
+              <tr><td>Abstraction</td><td><code>abstract class Person</code></td></tr>
+              <tr><td>Inheritance</td><td><code>Tenant extends Person</code></td></tr>
+              <tr><td>Interface + polymorphism</td><td><code>Billable</code>: Room, MessPlan and BillItem each give their own charge</td></tr>
+              <tr><td>Encapsulation</td><td>Private fields; setters check values</td></tr>
+              <tr><td>Layers</td><td>UI → service → DAO (JDBC) → MySQL</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid4" style="margin-top:18px">
+        <article class="card"><span class="bar" style="background:var(--azure)"></span><h3>Transactions</h3><p style="margin:0;font-size:15px">Register, shift and checkout change two tables at once, so they run inside one transaction.</p></article>
+        <article class="card"><span class="bar" style="background:var(--cyan)"></span><h3>Frozen bills</h3><p style="margin:0;font-size:15px">Each month's bill is saved once. A later rent change or room shift never rewrites old, paid bills.</p></article>
+        <article class="card"><span class="bar" style="background:var(--violet)"></span><h3>Safe SQL</h3><p style="margin:0;font-size:15px">Every query uses <span class="inline">PreparedStatement</span>, so typed text never becomes SQL.</p></article>
+        <article class="card"><span class="bar" style="background:var(--gold)"></span><h3>Input checks</h3><p style="margin:0;font-size:15px">Amounts, dates, phone numbers, emails and lengths are checked before anything reaches MySQL.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="run">
+    <div class="wrap">
+      <h2>Run it on your computer</h2>
+      <p class="sub">The app runs on your own machine against your own MySQL, so all data is live and stays with you.</p>
+      <div class="steps">
+        <div class="step"><span class="num">1</span><div><h3>Install Java and MySQL</h3>Java 8 or newer, and MySQL 5.7 or newer.</div></div>
+        <div class="step"><span class="num">2</span><div><h3>Download</h3>Get <span class="inline">PG-Manager.jar</span> and <span class="inline">pg-accommodation-source.zip</span> from the <a href="https://github.com/Rajamurugan181707/pg-accommodation-manager/releases/latest">latest release</a>, and unzip the ZIP.</div></div>
+        <div class="step"><span class="num">3</span><div><h3>Create the database</h3>This makes the tables and loads sample data. Run it from the unzipped folder.
+          <div class="code"><code>mysql -u root -p &lt; sql/schema.sql</code><button class="copy" type="button">Copy</button></div>
+          Then put <span class="inline">db.properties</span> next to the JAR and set your MySQL user and password in it.</div></div>
+        <div class="step"><span class="num">4</span><div><h3>Start the app</h3>
+          <div class="code"><code>java -jar PG-Manager.jar</code><button class="copy" type="button">Copy</button></div>
+          For the console version instead:
+          <div class="code"><code>java -cp PG-Manager.jar com.pgms.ui.Main</code><button class="copy" type="button">Copy</button></div></div></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><b>A. Raja Murugan</b>  |  II CSE F, Rajalakshmi Institute of Technology</div>
+    <div><a href="https://github.com/Rajamurugan181707/pg-accommodation-manager">Source on GitHub</a></div>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.copy').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var text = b.previousElementSibling.textContent;
+    var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); };
+    try {
+      navigator.clipboard.writeText(text).then(done, function () { b.textContent = 'Select and copy'; });
+    } catch (e) { b.textContent = 'Select and copy'; }
+  });
+});
+</script>
+</body>
+</html>

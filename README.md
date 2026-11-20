@@ -15,6 +15,8 @@ An app for the owner or warden of a PG hostel. It keeps rooms and beds,
 registers tenants and gives them beds, bills rent and mess every month, records
 payments, shows who has not paid, and runs the mess plans and weekly menu.
 
+**Website:** https://rajamurugan181707.github.io/pg-accommodation-manager/
+
 ## Download and run (no build needed)
 
 From the repository's **Releases** page, download:
