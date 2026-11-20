@@ -26,7 +26,7 @@ public class MessPanel extends JPanel implements Screen {
 
     private final MessService mess = new MessService();
     private final JPanel planGrid = new JPanel(new GridLayout(1, 0, 14, 0));
-    private final DefaultTableModel menu = Ui.model("Day", "Breakfast", "Lunch", "Dinner");
+    private final DefaultTableModel menu = Ui.model("Day", "Breakfast", "Lunch", "Evening snacks", "Dinner");
     private final JTable menuTable = Ui.table(menu);
     private final JLabel summary = Ui.bold(" ");
     private DynamicArray<DayMenu> week = new DynamicArray<DayMenu>();
@@ -51,14 +51,27 @@ public class MessPanel extends JPanel implements Screen {
         plans.add(Ui.small("CLICK A PLAN CARD TO SELECT IT.  TO MOVE A TENANT TO ANOTHER PLAN, USE  TENANTS  >  CHANGE MESS PLAN"), BorderLayout.SOUTH);
         add(plans, BorderLayout.NORTH);
 
-        JButton editDay = Ui.secondary("Edit selected day", "edit");
+        JButton editDay = Ui.secondary("Edit whole day", "edit");
         RoundPanel week = new RoundPanel(new BorderLayout(0, 14), 18);
         JPanel head2 = new JPanel(new BorderLayout());
         head2.setOpaque(false);
         head2.add(Ui.heading("This week's menu", "calendar"), BorderLayout.WEST);
-        head2.add(Ui.rowRight(editDay), BorderLayout.EAST);
+        head2.add(Ui.rowRight(Ui.bold("Double-click any meal to change it"), Ui.gap(6), editDay), BorderLayout.EAST);
         week.add(head2, BorderLayout.NORTH);
-        Ui.widths(menuTable, 170, 220, 260, 220);
+        Ui.widths(menuTable, 150, 200, 230, 170, 190);
+        menuTable.setToolTipText("Double-click a meal to change it");
+        menuTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int r = menuTable.rowAtPoint(e.getPoint());
+                    int c = menuTable.columnAtPoint(e.getPoint());
+                    if (r >= 0) {
+                        editMeal(r, c);
+                    }
+                }
+            }
+        });
         week.add(Ui.scroll(menuTable), BorderLayout.CENTER);
         add(week, BorderLayout.CENTER);
 
@@ -102,7 +115,8 @@ public class MessPanel extends JPanel implements Screen {
             menu.setRowCount(0);
             for (DayMenu d : week) {
                 String day = d.getDay().equals(today) ? d.getDay() + "  (TODAY)" : d.getDay();
-                menu.addRow(new Object[] {day, d.getBreakfast(), d.getLunch(), d.getDinner()});
+                menu.addRow(new Object[] {day, d.getBreakfast(), d.getLunch(),
+                        d.getSnacks().isEmpty() ? "-" : d.getSnacks(), d.getDinner()});
             }
             for (int i = 0; i < week.size(); i++) {
                 if (week.get(i).getDay().equals(today)) {
@@ -141,9 +155,11 @@ public class MessPanel extends JPanel implements Screen {
         f.note(d.getDay());
         JTextField b = f.text("Breakfast", d.getBreakfast());
         JTextField l = f.text("Lunch", d.getLunch());
+        JTextField s = f.text("Evening snacks", d.getSnacks());
         JTextField n = f.text("Dinner", d.getDinner());
+        f.note("Leave evening snacks empty if there are none that day.");
         boolean saved = f.show(this, "Edit menu", () ->
-                mess.updateMenu(d.getDay(), Form.required(b), Form.required(l), Form.required(n)));
+                mess.updateMenu(d.getDay(), Form.required(b), Form.required(l), s.getText(), Form.required(n)));
         if (saved) {
             refresh();
             Toast.show(this, "Menu for " + d.getDay() + " saved.");
@@ -204,6 +220,30 @@ public class MessPanel extends JPanel implements Screen {
             }
         } catch (Exception e) {
             Ui.problem(this, e);
+        }
+    }
+
+    /** Change one meal (double-click on its cell). Column 0 (the day) edits the whole day. */
+    void editMeal(int row, int col) {
+        if (col <= 0) {
+            menuTable.setRowSelectionInterval(row, row);
+            editDay();
+            return;
+        }
+        final DayMenu d = week.get(row);
+        final int meal = col - 1;
+        final String name = DayMenu.MEALS[meal];
+        Form f = new Form();
+        f.note(name + " on " + d.getDay());
+        JTextField food = f.text(name, d.meal(meal));
+        if (meal == 2) {
+            f.note("Leave empty if there are no snacks that day.");
+        }
+        boolean saved = f.show(this, "Edit " + name.toLowerCase(), () ->
+                mess.updateMeal(d.getDay(), meal, meal == 2 ? food.getText() : Form.required(food)));
+        if (saved) {
+            refresh();
+            Toast.show(this, name + " for " + d.getDay() + " saved.");
         }
     }
 }

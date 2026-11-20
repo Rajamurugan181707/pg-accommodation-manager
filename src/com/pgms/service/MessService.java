@@ -56,12 +56,42 @@ public class MessService {
         return new MessPlan(id, clean, mealsPerDay, monthlyCharge);
     }
 
+    private static boolean menuChecked;
+
+    private void upgradeMenu() throws SQLException {
+        if (!menuChecked) {
+            dao.ensureSnacksColumn();
+            menuChecked = true;
+        }
+    }
+
     public DynamicArray<DayMenu> weeklyMenu() throws SQLException {
+        upgradeMenu();
         return dao.findMenu();
     }
 
-    public void updateMenu(String day, String breakfast, String lunch, String dinner) throws SQLException {
-        dao.updateMenu(new DayMenu(day, breakfast.trim(), lunch.trim(), dinner.trim()));
+    /** Replace a whole day's menu. Snacks may be empty (none that day). */
+    public void updateMenu(String day, String breakfast, String lunch, String snacks, String dinner)
+            throws SQLException {
+        upgradeMenu();
+        dao.updateMenu(new DayMenu(day, breakfast, lunch, snacks, dinner));
+    }
+
+    /** Change just one meal of one day; meal: 0 breakfast, 1 lunch, 2 snacks, 3 dinner. */
+    public DayMenu updateMeal(final String day, int meal, String text) throws SQLException {
+        DynamicArray<DayMenu> week = weeklyMenu();
+        int i = week.indexOf(new DynamicArray.Matcher<DayMenu>() {
+            @Override
+            public boolean matches(DayMenu d) {
+                return d.getDay().equals(day);
+            }
+        });
+        if (i < 0) {
+            throw new IllegalArgumentException("No menu for " + day);
+        }
+        DayMenu changed = week.get(i).withMeal(meal, text);
+        dao.updateMenu(changed);
+        return changed;
     }
 
     /**

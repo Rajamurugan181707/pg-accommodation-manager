@@ -36,7 +36,7 @@ public class MessMenu {
             System.out.println("2. Add a mess plan");
             System.out.println("3. Change a tenant's mess plan");
             System.out.println("4. View this week's menu");
-            System.out.println("5. Change the menu for a day");
+            System.out.println("5. Change the food for a day");
             System.out.println("6. Edit a mess plan");
             System.out.println("7. Delete a mess plan");
             System.out.println("0. Back");
@@ -93,9 +93,10 @@ public class MessMenu {
     }
 
     private void menu() throws SQLException {
-        Table t = new Table("Day", "Breakfast", "Lunch", "Dinner");
+        Table t = new Table("Day", "Breakfast", "Lunch", "Evening snacks", "Dinner");
         for (DayMenu d : mess.weeklyMenu()) {
-            t.addRow(d.getDay(), d.getBreakfast(), d.getLunch(), d.getDinner());
+            t.addRow(d.getDay(), d.getBreakfast(), d.getLunch(), d.getSnacks().isEmpty() ? "-" : d.getSnacks(),
+                    d.getDinner());
         }
         t.print();
     }
@@ -105,10 +106,20 @@ public class MessMenu {
             System.out.println("  " + (i + 1) + ". " + DAYS[i]);
         }
         String day = DAYS[in.number("Day: ", 1, 7) - 1];
-        String b = in.text("Breakfast: ");
-        String l = in.text("Lunch: ");
-        String d = in.text("Dinner: ");
-        mess.updateMenu(day, b, l, d);
+        DayMenu old = null;
+        for (DayMenu m : mess.weeklyMenu()) {
+            if (m.getDay().equals(day)) {
+                old = m;
+            }
+        }
+        System.out.println("  Press Enter to keep the food in [brackets]. For snacks, type - for none.");
+        String[] meals = new String[4];
+        for (int i = 0; i < 4; i++) {
+            String now = old == null ? "" : old.meal(i);
+            String typed = in.line("  " + DayMenu.MEALS[i] + " [" + now + "]: ").trim();
+            meals[i] = typed.isEmpty() ? now : typed;
+        }
+        mess.updateMenu(day, meals[0], meals[1], meals[2], meals[3]);
         System.out.println("  Menu for " + day + " saved.");
     }
 

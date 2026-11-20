@@ -42,6 +42,7 @@ CREATE TABLE mess_menu (
     day_of_week ENUM('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY') PRIMARY KEY,
     breakfast   VARCHAR(80) NOT NULL,
     lunch       VARCHAR(80) NOT NULL,
+    snacks      VARCHAR(80) NOT NULL DEFAULT '',   -- evening snacks, '' = none
     dinner      VARCHAR(80) NOT NULL
 );
 
@@ -124,14 +125,14 @@ INSERT INTO mess_plans (plan_name, meals_per_day, monthly_charge) VALUES
 ('Two meals',      2, 2800),
 ('Full board',     3, 3800);
 
-INSERT INTO mess_menu VALUES
-('MONDAY',    'Idli, sambar, chutney',  'Rice, sambar, poriyal, curd', 'Chapati, kurma'),
-('TUESDAY',   'Pongal, vada',           'Rice, rasam, kootu, curd',    'Dosa, chutney'),
-('WEDNESDAY', 'Poori, masala',          'Veg biryani, raita',          'Idiyappam, kurma'),
-('THURSDAY',  'Upma, chutney',          'Rice, kara kuzhambu, curd',   'Parotta, salna'),
-('FRIDAY',    'Dosa, sambar',           'Rice, sambar, appalam, curd', 'Chapati, dal'),
-('SATURDAY',  'Rava kichadi',           'Lemon rice, curd rice',       'Uthappam, chutney'),
-('SUNDAY',    'Masala dosa',            'Chicken / paneer biryani',    'Light dinner: idli');
+INSERT INTO mess_menu (day_of_week, breakfast, lunch, snacks, dinner) VALUES
+('MONDAY',    'Idli, sambar, chutney',  'Rice, sambar, poriyal, curd', 'Tea, biscuits',          'Chapati, kurma'),
+('TUESDAY',   'Pongal, vada',           'Rice, rasam, kootu, curd',    'Coffee, sundal',         'Dosa, chutney'),
+('WEDNESDAY', 'Poori, masala',          'Veg biryani, raita',          'Tea, bajji',             'Idiyappam, kurma'),
+('THURSDAY',  'Upma, chutney',          'Rice, kara kuzhambu, curd',   'Coffee, murukku',        'Parotta, salna'),
+('FRIDAY',    'Dosa, sambar',           'Rice, sambar, appalam, curd', 'Tea, samosa',            'Chapati, dal'),
+('SATURDAY',  'Rava kichadi',           'Lemon rice, curd rice',       'Coffee, banana',         'Uthappam, chutney'),
+('SUNDAY',    'Masala dosa',            'Chicken / paneer biryani',    '',                       'Light dinner: idli');
 
 INSERT INTO tenants (name, phone, email, gender, occupation, room_id, mess_plan_id, join_date, deposit) VALUES
 ('Arun Kumar',   '9840011111', 'arun@example.com',   'MALE', 'Software engineer', 4, 3, '2026-06-01', 22000),

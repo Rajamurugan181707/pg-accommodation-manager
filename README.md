@@ -108,7 +108,7 @@ safety rules still apply to every edit.
 | **Payment** | amount, date, mode, note, or delete it (**Rent → Edit payment**) | a month's payments can never add up to more than its bill; no future dates |
 | **Bill** | one month's room rent and mess charge, e.g. a discount (**Rent → Edit bill**) | cannot go below what is already paid; no future months |
 | **Mess plan** | name, meals, charge, or delete it (click a plan card, then **Edit plan / Delete plan**) | names unique; a plan any tenant has used cannot be deleted |
-| **Menu** | any day's meals (**Mess → Edit selected day**) | - |
+| **Food menu** | breakfast, lunch, evening snacks, dinner for every day: **double-click a meal** to change just that one, or **Edit whole day** | breakfast, lunch and dinner can't be empty; snacks are optional |
 | **Names in the app** | PG name, tagline, owner name, footer line (**Settings** page) | shown live in the sidebar and window title |
 
 Room shifts, mess-plan changes and check-outs have their own buttons, because they

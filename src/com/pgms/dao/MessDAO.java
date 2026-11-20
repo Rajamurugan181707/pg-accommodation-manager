@@ -47,11 +47,11 @@ public class MessDAO {
         DynamicArray<DayMenu> week = new DynamicArray<DayMenu>(7);
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "SELECT day_of_week, breakfast, lunch, dinner FROM mess_menu "
+                     "SELECT day_of_week, breakfast, lunch, snacks, dinner FROM mess_menu "
                      + "ORDER BY FIELD(day_of_week,'MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY')");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                week.add(new DayMenu(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
+                week.add(new DayMenu(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
             }
         }
         return week;
@@ -60,11 +60,12 @@ public class MessDAO {
     public void updateMenu(DayMenu menu) throws SQLException {
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "REPLACE INTO mess_menu (day_of_week, breakfast, lunch, dinner) VALUES (?, ?, ?, ?)")) {
+                     "REPLACE INTO mess_menu (day_of_week, breakfast, lunch, snacks, dinner) VALUES (?, ?, ?, ?, ?)")) {
             ps.setString(1, menu.getDay());
             ps.setString(2, menu.getBreakfast());
             ps.setString(3, menu.getLunch());
-            ps.setString(4, menu.getDinner());
+            ps.setString(4, menu.getSnacks());
+            ps.setString(5, menu.getDinner());
             ps.executeUpdate();
         }
     }
@@ -86,6 +87,24 @@ public class MessDAO {
              PreparedStatement ps = c.prepareStatement("DELETE FROM mess_plans WHERE plan_id = ?")) {
             ps.setInt(1, planId);
             ps.executeUpdate();
+        }
+    }
+
+    /** Adds the snacks column to menus made before it existed. Safe to call every start. */
+    public void ensureSnacksColumn() throws SQLException {
+        try (Connection c = DBConnection.getConnection()) {
+            boolean has;
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() "
+                    + "AND TABLE_NAME = 'mess_menu' AND COLUMN_NAME = 'snacks'");
+                 ResultSet rs = ps.executeQuery()) {
+                has = rs.next();
+            }
+            if (!has) {
+                try (Statement st = c.createStatement()) {
+                    st.executeUpdate("ALTER TABLE mess_menu ADD COLUMN snacks VARCHAR(80) NOT NULL DEFAULT '' AFTER lunch");
+                }
+            }
         }
     }
 }
