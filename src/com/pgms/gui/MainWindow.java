@@ -63,11 +63,12 @@ public class MainWindow extends JFrame {
 
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
-        JPanel titles = new JPanel(new GridLayout(2, 1, 0, 2));
+        JPanel titles = new JPanel(new BorderLayout(0, 4));
         titles.setOpaque(false);
         pageTitle.setFont(Theme.HERO);
-        titles.add(pageTitle);
-        titles.add(pageSub);
+        titles.add(pageTitle, BorderLayout.NORTH);
+        titles.add(new RainbowLine(), BorderLayout.CENTER);
+        titles.add(pageSub, BorderLayout.SOUTH);
         header.add(titles, BorderLayout.WEST);
         RoundPanel date = new RoundPanel(new BorderLayout(), 14);
         date.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 16));
@@ -99,10 +100,12 @@ public class MainWindow extends JFrame {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected void paintComponent(Graphics g) {
-                g.setColor(Theme.BG2);
+            protected void paintComponent(Graphics g0) {
+                Graphics2D g = (Graphics2D) g0;
+                g.setPaint(new GradientPaint(0, 0, new java.awt.Color(0x1B1250), 0, getHeight(),
+                        new java.awt.Color(0x3A1670)));
                 g.fillRect(0, 0, getWidth(), getHeight());
-                g.setColor(Theme.LINE);
+                g.setColor(Theme.LINE2);
                 g.fillRect(getWidth() - 1, 0, 1, getHeight());
             }
         };
@@ -170,7 +173,26 @@ public class MainWindow extends JFrame {
         return screens[page];
     }
 
-    /** The "PG" logo: a bright rounded square with dark letters. */
+    /** A short blue-magenta-amber bar under the page title (decoration only). */
+    private static class RainbowLine extends JComponent {
+        private static final long serialVersionUID = 1L;
+
+        RainbowLine() {
+            setPreferredSize(new Dimension(120, 10));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g0) {
+            Graphics2D g = (Graphics2D) g0.create();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setPaint(new java.awt.LinearGradientPaint(0, 0, 120, 0, new float[] {0f, 0.5f, 1f},
+                    new java.awt.Color[] {Theme.BLUE, Theme.MAGENTA, Theme.AMBER}));
+            g.fillRoundRect(0, 2, 120, 5, 5, 5);
+            g.dispose();
+        }
+    }
+
+    /** The "PG" logo: a magenta-to-blue rounded square with white letters and a gold bar. */
     private static class LogoMark extends JComponent {
         private static final long serialVersionUID = 1L;
 
@@ -183,11 +205,11 @@ public class MainWindow extends JFrame {
             Graphics2D g = (Graphics2D) g0.create();
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g.setPaint(new GradientPaint(0, 0, Theme.AZURE_HI, 44, 44, Theme.AZURE_LO));
+            g.setPaint(new GradientPaint(0, 0, Theme.MAGENTA, 44, 44, Theme.BLUE));
             g.fillRoundRect(0, 0, 44, 44, 14, 14);
             g.setColor(Theme.GOLD);
             g.fillRoundRect(8, 34, 28, 4, 4, 4);
-            g.setColor(Theme.DARK_INK);
+            g.setColor(Theme.INK);
             g.setFont(Theme.font(java.awt.Font.BOLD, 18));
             FontMetrics fm = g.getFontMetrics();
             g.drawString("PG", (44 - fm.stringWidth("PG")) / 2, 27);

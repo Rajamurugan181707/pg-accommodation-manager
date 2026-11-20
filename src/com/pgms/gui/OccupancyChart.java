@@ -67,7 +67,7 @@ public class OccupancyChart extends JPanel {
             FontMetrics fm = g.getFontMetrics();
             int pw = fm.stringWidth(word) + 20;
             int px = w - pw - 4;
-            g.setColor(Theme.PANEL2);
+            g.setColor(r.isFull() ? new java.awt.Color(0x3A3270) : new java.awt.Color(0x0B5E68));
             g.fillRoundRect(px, y + 4, pw, 22, 22, 22);
             g.setColor(r.isFull() ? Theme.STEEL : Theme.CYAN);
             g.setStroke(new BasicStroke(1.3f));
@@ -85,7 +85,7 @@ public class OccupancyChart extends JPanel {
         int h = 18;
         g.setStroke(new BasicStroke(1.6f));
         if (taken) {
-            g.setColor(Theme.AZURE);
+            g.setPaint(new java.awt.GradientPaint(x, y, Theme.GOLD, x + w, y + h, Theme.AMBER));
             g.fillRoundRect(x, y, w, h, 6, 6);
             g.setColor(Theme.DARK_INK);
             g.fillRoundRect(x + 3, y + 3, 8, 6, 3, 3);

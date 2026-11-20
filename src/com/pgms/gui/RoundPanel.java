@@ -48,6 +48,11 @@ public class RoundPanel extends JPanel {
             g.fillRoundRect(0, 0, 12, h - 1, arc, arc);
             g.setClip(null);
         }
+        g.setClip(new java.awt.geom.RoundRectangle2D.Float(0, 0, w - 1, h - 1, arc, arc));
+        g.setPaint(new java.awt.LinearGradientPaint(0, 0, w, 0, new float[] {0f, 0.5f, 1f},
+                new Color[] {Theme.BLUE, Theme.MAGENTA, Theme.AMBER}));
+        g.fillRect(0, 0, w, 3);
+        g.setClip(null);
         g.setColor(Theme.LINE);
         g.setStroke(new BasicStroke(1f));
         g.drawRoundRect(0, 0, w - 1, h - 1, arc, arc);

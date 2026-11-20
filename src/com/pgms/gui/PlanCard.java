@@ -19,12 +19,13 @@ public class PlanCard extends JComponent {
     private static final long serialVersionUID = 1L;
     private final MessPlan plan;
     private final int tenants;
-    private final Color accent;
+    private final int gradient;
 
-    public PlanCard(MessPlan plan, int tenants, Color accent) {
+    /** gradient = index into Theme.GRADS. */
+    public PlanCard(MessPlan plan, int tenants, int gradient) {
         this.plan = plan;
         this.tenants = tenants;
-        this.accent = accent;
+        this.gradient = gradient;
         setPreferredSize(new Dimension(220, 150));
     }
 
@@ -35,12 +36,16 @@ public class PlanCard extends JComponent {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         int w = getWidth();
         int h = getHeight();
-        g.setPaint(new GradientPaint(0, 0, Theme.RAISE, 0, h, Theme.PANEL));
-        g.fillRoundRect(0, 0, w - 1, h - 1, 16, 16);
-        g.setColor(Theme.LINE);
-        g.drawRoundRect(0, 0, w - 1, h - 1, 16, 16);
-        g.setColor(accent);
-        g.fillRoundRect(16, 0, 40, 4, 4, 4);
+        Color[] gr = Theme.GRADS[gradient % Theme.GRADS.length];
+        g.setPaint(new GradientPaint(0, 0, gr[0], w, h, gr[1]));
+        g.fillRoundRect(0, 0, w - 1, h - 1, 18, 18);
+        java.awt.Shape old = g.getClip();
+        g.clip(new java.awt.geom.RoundRectangle2D.Float(0, 0, w - 1, h - 1, 18, 18));
+        g.setComposite(java.awt.AlphaComposite.getInstance(java.awt.AlphaComposite.SRC_OVER, 0.12f));
+        g.setColor(Color.WHITE);
+        g.fillOval(w - 80, -50, 140, 140);
+        g.setComposite(java.awt.AlphaComposite.SrcOver);
+        g.setClip(old);
 
         g.setColor(Theme.INK);
         g.setFont(Theme.H2);
@@ -66,9 +71,9 @@ public class PlanCard extends JComponent {
         FontMetrics fm = g.getFontMetrics();
         int pw = fm.stringWidth(count) + 22;
         int px = w - pw - 14;
-        g.setColor(Theme.BG2);
+        g.setColor(new Color(0, 0, 0, 70));
         g.fillRoundRect(px, 38, pw, 26, 26, 26);
-        g.setColor(accent);
+        g.setColor(Color.WHITE);
         g.setStroke(new BasicStroke(1.4f));
         g.drawRoundRect(px, 38, pw, 26, 26, 26);
         g.setColor(Theme.INK);

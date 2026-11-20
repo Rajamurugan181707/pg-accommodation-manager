@@ -26,10 +26,10 @@ public class DashboardPanel extends JPanel implements Screen {
     private final TenantService tenants = new TenantService();
     private final RentService rent = new RentService();
 
-    private final StatCard occupancy = new StatCard("Occupancy", "bed", Theme.AZURE);
-    private final StatCard staying = new StatCard("Tenants", "users", Theme.VIOLET);
-    private final StatCard collected = new StatCard("Collected", "receipt", Theme.CYAN);
-    private final StatCard pending = new StatCard("Pending", "rupee", Theme.AMBER);
+    private final StatCard occupancy = new StatCard("Occupancy", "bed", 0);
+    private final StatCard staying = new StatCard("Tenants", "users", 1);
+    private final StatCard collected = new StatCard("Collected", "receipt", 2);
+    private final StatCard pending = new StatCard("Pending", "rupee", 3);
     private final OccupancyChart bedMap = new OccupancyChart();
     private final DonutChart donut = new DonutChart();
     private final MonthBars bars = new MonthBars();

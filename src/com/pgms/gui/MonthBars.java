@@ -46,7 +46,7 @@ public class MonthBars extends JComponent {
         g.drawRoundRect(0, 2, 14, 12, 4, 4);
         g.setColor(Theme.INK);
         g.drawString("BILLED (outline)", 22, 13);
-        g.setColor(Theme.AZURE);
+        g.setPaint(new java.awt.GradientPaint(0, 2, Theme.MAGENTA, 0, 14, Theme.BLUE));
         g.fillRoundRect(150, 2, 14, 12, 4, 4);
         g.setColor(Theme.INK);
         g.drawString("COLLECTED (filled)", 172, 13);
@@ -75,7 +75,7 @@ public class MonthBars extends JComponent {
             int bh = (int) ((base - top) * billed[i] / max);
             int ch = (int) ((base - top) * Math.min(collected[i], billed[i]) / max);
             if (billed[i] > 0) {
-                g.setColor(Theme.AZURE);
+                g.setPaint(new java.awt.GradientPaint(0, base - ch, Theme.MAGENTA, 0, base, Theme.BLUE));
                 g.fillRoundRect(cx - bw / 2, base - ch, bw, ch, 8, 8);
                 g.setColor(Theme.STEEL);
                 g.setStroke(new BasicStroke(1.5f));

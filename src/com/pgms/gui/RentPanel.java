@@ -30,9 +30,9 @@ public class RentPanel extends JPanel implements Screen {
     private final JTable table = Ui.table(model);
     private final JComboBox<String> month = Ui.combo(recentMonths());
     private final JLabel totals = Ui.bold(" ");
-    private final StatCard billedCard = new StatCard("Billed", "receipt", Theme.VIOLET);
-    private final StatCard paidCard = new StatCard("Collected", "check", Theme.CYAN);
-    private final StatCard pendingCard = new StatCard("Pending", "rupee", Theme.AMBER);
+    private final StatCard billedCard = new StatCard("Billed", "receipt", 0);
+    private final StatCard paidCard = new StatCard("Collected", "check", 2);
+    private final StatCard pendingCard = new StatCard("Pending", "rupee", 3);
     private DynamicArray<DueLine> shown = new DynamicArray<DueLine>();
 
     public RentPanel() {

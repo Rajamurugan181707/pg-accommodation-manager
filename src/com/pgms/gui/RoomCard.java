@@ -25,7 +25,7 @@ public class RoomCard extends JComponent {
 
     public RoomCard(Room room, final Runnable onClick) {
         this.room = room;
-        setPreferredSize(new Dimension(224, 182));
+        setPreferredSize(new Dimension(224, 190));
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         setToolTipText("Room " + room.getRoomNo() + ": click to select");
         addMouseListener(new MouseAdapter() {
@@ -66,9 +66,16 @@ public class RoomCard extends JComponent {
         int h = getHeight();
         g.setPaint(new GradientPaint(0, 0, hover || selected ? Theme.HOVER : Theme.PANEL2, 0, h, Theme.PANEL));
         g.fillRoundRect(1, 1, w - 3, h - 3, 18, 18);
+        // colour band across the top: one gradient per room type
+        java.awt.Color[] band = Theme.GRADS[room.getType().ordinal() == 0 ? 0 : room.getType().ordinal() == 1 ? 1 : 2];
+        java.awt.Shape old = g.getClip();
+        g.clip(new java.awt.geom.RoundRectangle2D.Float(1, 1, w - 3, h - 3, 18, 18));
+        g.setPaint(new GradientPaint(0, 0, band[0], w, 0, band[1]));
+        g.fillRect(0, 0, w, 56);
+        g.setClip(old);
         if (selected) {
-            g.setColor(Theme.GOLD);
-            g.setStroke(new BasicStroke(2.5f));
+            g.setColor(Theme.MAGENTA);
+            g.setStroke(new BasicStroke(3f));
         } else {
             g.setColor(hover ? Theme.STEEL : Theme.LINE);
             g.setStroke(new BasicStroke(1f));
@@ -86,10 +93,10 @@ public class RoomCard extends JComponent {
         FontMetrics fm = g.getFontMetrics();
         int tw = fm.stringWidth(tag) + (selected ? 34 : 20);
         int tx = w - tw - 14;
-        g.setColor(Theme.BG2);
+        g.setColor(new java.awt.Color(0, 0, 0, 70));
         g.fillRoundRect(tx, 18, tw, 24, 24, 24);
-        g.setColor(selected ? Theme.GOLD : Theme.LINE2);
-        g.setStroke(new BasicStroke(1.4f));
+        g.setColor(selected ? Theme.MAGENTA : new java.awt.Color(255, 255, 255, 140));
+        g.setStroke(new BasicStroke(selected ? 2f : 1.4f));
         g.drawRoundRect(tx, 18, tw, 24, 24, 24);
         if (selected) {
             Icons.of("check", 14, Theme.INK).paintIcon(this, g, tx + 9, 23);
@@ -101,12 +108,12 @@ public class RoomCard extends JComponent {
         String type = room.getType().name().charAt(0) + room.getType().name().substring(1).toLowerCase();
         g.setFont(Theme.BODY);
         g.drawString(type + " room  |  " + (room.hasAc() ? "AC" : "Non-AC")
-                + (selected ? "  |  " + (room.getFloor() == 0 ? "Ground" : "Floor " + room.getFloor()) : ""), 18, 68);
+                + (selected ? "  |  " + (room.getFloor() == 0 ? "Ground" : "Floor " + room.getFloor()) : ""), 18, 78);
 
         // beds
         int x = 18;
         for (int b = 0; b < room.getCapacity(); b++) {
-            drawBed(g, x, 84, b < room.getOccupied());
+            drawBed(g, x, 90, b < room.getOccupied());
             x += 46;
         }
 
@@ -125,7 +132,7 @@ public class RoomCard extends JComponent {
         fm = g.getFontMetrics();
         int pw = fm.stringWidth(word) + 22;
         int px = w - pw - 16;
-        g.setColor(Theme.BG2);
+        g.setColor(room.isFull() ? new java.awt.Color(0x3A3270) : new java.awt.Color(0x0B5E68));
         g.fillRoundRect(px, h - 40, pw, 26, 26, 26);
         g.setColor(room.isFull() ? Theme.STEEL : Theme.CYAN);
         g.drawRoundRect(px, h - 40, pw, 26, 26, 26);
@@ -140,7 +147,7 @@ public class RoomCard extends JComponent {
         int h = 26;
         g.setStroke(new BasicStroke(1.8f));
         if (taken) {
-            g.setColor(Theme.AZURE);
+            g.setPaint(new GradientPaint(x, y, Theme.GOLD, x + w, y + h, Theme.AMBER));
             g.fillRoundRect(x, y, w, h, 8, 8);
             g.setColor(Theme.DARK_INK);
             g.fillRoundRect(x + 4, y + 4, 11, 8, 4, 4);

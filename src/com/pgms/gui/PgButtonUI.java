@@ -66,14 +66,14 @@ public class PgButtonUI extends BasicButtonUI {
         boolean hover = m.isRollover();
         boolean down = m.isArmed() && m.isPressed();
 
-        if ("primary".equals(kind) || "navOn".equals(kind)) {
-            Color fill = down ? Theme.AZURE_LO : hover && "primary".equals(kind) ? Theme.AZURE_HI : Theme.AZURE;
-            g.setColor(fill);
+        if ("primary".equals(kind)) {
+            Color ca = down ? Theme.BTN_A.darker() : hover ? Theme.BTN_A.brighter() : Theme.BTN_A;
+            Color cb = down ? Theme.BTN_B.darker() : hover ? Theme.BTN_B.brighter() : Theme.BTN_B;
+            g.setPaint(new java.awt.GradientPaint(0, 0, ca, w, h, cb));
             g.fillRoundRect(0, 0, w, h, arc, arc);
-            if ("navOn".equals(kind)) {
-                g.setColor(Theme.GOLD);
-                g.fillRoundRect(0, 6, 4, h - 12, 4, 4);
-            }
+        } else if ("navOn".equals(kind)) {
+            g.setPaint(new java.awt.GradientPaint(0, 0, Theme.GOLD, w, h, Theme.AMBER));
+            g.fillRoundRect(0, 0, w, h, arc, arc);
         } else if ("nav".equals(kind)) {
             if (hover || down) {
                 g.setColor(down ? Theme.LINE2 : Theme.RAISE);

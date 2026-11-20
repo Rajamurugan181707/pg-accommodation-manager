@@ -22,24 +22,46 @@ import java.util.Set;
  */
 public final class Theme {
 
-    public static final Color BG = new Color(0x0A0E13);
-    public static final Color BG2 = new Color(0x0F151C);
-    public static final Color PANEL = new Color(0x141C25);
-    public static final Color PANEL2 = new Color(0x1A242F);
-    public static final Color RAISE = new Color(0x1F2C39);
-    public static final Color HOVER = new Color(0x263646);
-    public static final Color LINE = new Color(0x25323F);
-    public static final Color LINE2 = new Color(0x35485E);
+    // Rich indigo base: dark enough for white text everywhere, colourful in tone
+    public static final Color BG = new Color(0x0E0A2A);
+    public static final Color BG2 = new Color(0x140F36);
+    public static final Color PANEL = new Color(0x1B1544);
+    public static final Color PANEL2 = new Color(0x241C57);
+    public static final Color RAISE = new Color(0x2D2468);
+    public static final Color HOVER = new Color(0x3A2F82);
+    public static final Color LINE = new Color(0x332A70);
+    public static final Color LINE2 = new Color(0x5244A6);
     public static final Color INK = Color.WHITE;
-    public static final Color DARK_INK = new Color(0x06121C);
-    public static final Color AZURE = new Color(0x3FA7FF);
-    public static final Color AZURE_HI = new Color(0x6BBCFF);
-    public static final Color AZURE_LO = new Color(0x2A8DE6);
-    public static final Color AMBER = new Color(0xFF9F35);
-    public static final Color CYAN = new Color(0x26D7C8);
-    public static final Color VIOLET = new Color(0xB07BFF);
-    public static final Color GOLD = new Color(0xF5D33B);
-    public static final Color STEEL = new Color(0x4A6076);
+    public static final Color DARK_INK = new Color(0x120A2A);
+
+    // Vivid accents (graphics and fills; text on them is white or, on the brightest, dark)
+    public static final Color AZURE = new Color(0x4C8DFF);
+    public static final Color AZURE_HI = new Color(0x7AAEFF);
+    public static final Color AZURE_LO = new Color(0x3366E8);
+    public static final Color BLUE = new Color(0x3D5BFF);
+    public static final Color VIOLET = new Color(0x9B5CFF);
+    public static final Color PURPLE = new Color(0x7A3CF0);
+    public static final Color MAGENTA = new Color(0xFF4FB8);
+    public static final Color PINK = new Color(0xD8338F);
+    public static final Color AMBER = new Color(0xFFA62B);
+    public static final Color ORANGE = new Color(0xF2711C);
+    public static final Color CYAN = new Color(0x2EE6D6);
+    public static final Color TEAL = new Color(0x0FA3B1);
+    public static final Color GOLD = new Color(0xFFD84D);
+    public static final Color STEEL = new Color(0x7B72B8);
+
+    /** Gradient pairs for filled cards; all dark/saturated enough for white text. */
+    public static final Color[][] GRADS = {
+        {new Color(0x3D5BFF), new Color(0x8A3FFC)},   // blue -> violet
+        {new Color(0x8A3FFC), new Color(0xD8338F)},   // violet -> magenta
+        {new Color(0x0E8FA3), new Color(0x3D5BFF)},   // teal -> blue
+        {new Color(0xE0601A), new Color(0xC2307A)},   // orange -> magenta
+        {new Color(0xB8860B), new Color(0xE0601A)},   // gold -> orange
+    };
+
+    /** The primary-button gradient (white text). */
+    public static final Color BTN_A = new Color(0x4361FF);
+    public static final Color BTN_B = new Color(0x9B3FFC);
 
     /** First font family installed from a list that looks good on macOS and Windows. */
     public static final String FAMILY = pickFamily();

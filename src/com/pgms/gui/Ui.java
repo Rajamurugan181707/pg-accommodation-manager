@@ -23,7 +23,7 @@ public final class Ui {
     private Ui() {
     }
 
-    /** Bright azure button with dark text: the main action on a screen. */
+    /** Blue-to-violet gradient button with white text: the main action on a screen. */
     public static JButton primary(String text) {
         return button(text, null, "primary");
     }
@@ -44,7 +44,7 @@ public final class Ui {
     static JButton button(String text, String icon, String kind) {
         JButton b = new JButton(text);
         b.putClientProperty("pg.kind", kind);
-        b.setForeground("primary".equals(kind) ? Theme.DARK_INK : Theme.INK);
+        b.setForeground(Theme.INK);
         b.setFont(Theme.BOLD);
         if (icon != null) {
             b.setIcon(Icons.of(icon, 16, b.getForeground()));

@@ -77,7 +77,7 @@ public class Toast extends JComponent {
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0f, Math.min(1f, alpha))));
         int w = getWidth();
         int h = getHeight();
-        g.setColor(Theme.RAISE);
+        g.setPaint(new java.awt.GradientPaint(0, 0, Theme.BTN_A, w, h, Theme.BTN_B));
         g.fillRoundRect(0, 0, w - 1, h - 1, 16, 16);
         g.setColor(Theme.CYAN);
         g.drawRoundRect(0, 0, w - 1, h - 1, 16, 16);

@@ -84,11 +84,11 @@ public class PgTable extends JTable {
             l.setText(name.toUpperCase());
             l.setFont(Theme.SMALL);
             l.setForeground(Theme.INK);
-            l.setBackground(Theme.PANEL2);
+            l.setBackground(Theme.RAISE);
             l.setOpaque(true);
             l.setHorizontalAlignment(RIGHT_COLUMNS.contains(name) ? SwingConstants.RIGHT : SwingConstants.LEFT);
             l.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(0, 0, 2, 0, Theme.LINE2),
+                    BorderFactory.createMatteBorder(0, 0, 3, 0, Theme.VIOLET),
                     BorderFactory.createEmptyBorder(0, 14, 0, 14)));
             return l;
         }
@@ -108,7 +108,7 @@ public class PgTable extends JTable {
             String column = t.getColumnName(col);
             pill = PILLS.contains(text);
             avatar = NAME_COLUMNS.contains(column) && !text.isEmpty();
-            rowColor = selected ? Theme.LINE2 : row == hoverRow ? Theme.HOVER : (row % 2 == 0 ? Theme.BG2 : Theme.PANEL);
+            rowColor = selected ? new Color(0x4B3BA8) : row == hoverRow ? Theme.HOVER : (row % 2 == 0 ? Theme.BG2 : Theme.PANEL);
             setOpaque(false);
             setForeground(Theme.INK);
             setFont(selected || avatar ? Theme.BOLD : Theme.BODY);
@@ -143,11 +143,9 @@ public class PgTable extends JTable {
             int d = 28;
             int x = 14;
             int y = (h - d) / 2;
-            g.setColor(Theme.RAISE);
+            Color[] gr = Theme.GRADS[Math.abs(text.hashCode()) % Theme.GRADS.length];
+            g.setPaint(new java.awt.GradientPaint(x, y, gr[0], x + d, y + d, gr[1]));
             g.fillOval(x, y, d, d);
-            g.setColor(Theme.STEEL);
-            g.setStroke(new BasicStroke(1.2f));
-            g.drawOval(x, y, d, d);
             String initials = initials(text);
             g.setFont(Theme.SMALL);
             g.setColor(Theme.INK);
@@ -161,9 +159,12 @@ public class PgTable extends JTable {
             int ph = 26;
             int x = 12;
             int y = (h - ph) / 2;
-            Color edge = "PAID".equals(text) || "ACTIVE".equals(text) ? Theme.CYAN
-                    : "LEFT".equals(text) ? Theme.STEEL : Theme.AMBER;
-            g.setColor(Theme.PANEL2);
+            boolean good = "PAID".equals(text) || "ACTIVE".equals(text);
+            Color edge = good ? Theme.CYAN : "LEFT".equals(text) ? Theme.STEEL
+                    : "PARTIAL".equals(text) ? Theme.AMBER : Theme.MAGENTA;
+            Color fill = good ? new Color(0x0B5E68) : "LEFT".equals(text) ? new Color(0x3A3270)
+                    : "PARTIAL".equals(text) ? new Color(0x7A3A0C) : new Color(0x6A1A55);
+            g.setColor(fill);
             g.fillRoundRect(x, y, pw, ph, ph, ph);
             g.setColor(edge);
             g.setStroke(new BasicStroke(1.5f));

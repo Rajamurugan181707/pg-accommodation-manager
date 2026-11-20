@@ -14,7 +14,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,7 +23,6 @@ import java.util.Locale;
 public class MessPanel extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color[] ACCENTS = {Theme.AZURE, Theme.CYAN, Theme.VIOLET, Theme.GOLD, Theme.AMBER};
 
     private final MessService mess = new MessService();
     private final JPanel planGrid = new JPanel(new GridLayout(1, 0, 14, 0));
@@ -74,7 +72,7 @@ public class MessPanel extends JPanel implements Screen {
             double income = 0;
             for (int i = 0; i < list.size(); i++) {
                 MessPlan p = list.get(i);
-                planGrid.add(new PlanCard(p, heads[i], ACCENTS[i % ACCENTS.length]));
+                planGrid.add(new PlanCard(p, heads[i], i));
                 eaters += heads[i];
                 income += heads[i] * p.monthlyCharge();
             }
